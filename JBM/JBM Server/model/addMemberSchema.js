@@ -8,7 +8,7 @@ const addMember = mongoose.Schema({
     member_email : String,
     address : String,
     formatdate : {type : String, default : ""},
-    createdat : {type : Date, default : new Date()},
+    createdat : {type : Date, default : ''},
     password : { type : String, default : "" }
 }, { collection : "add_member" });
 

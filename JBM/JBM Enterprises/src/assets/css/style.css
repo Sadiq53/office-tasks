@@ -45,6 +45,295 @@ File: style.css
 
 =========================================================================
 =================================================================================== */
+
+.overlay-suds {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+.overlay-suds.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup-suds {
+  margin: 200px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  width: 30%;
+  position: relative;
+  transition: all 5s ease-in-out;
+}
+
+.popup-suds .header{
+  display : flex;
+  align-items : center;
+  justify-content : space-between;
+}
+
+.popup-suds h2 {
+  margin-top: 0;
+  color: #333;
+  font-family: Tahoma, Arial, sans-serif;
+}
+.popup-suds .suds-btn {
+ 
+  transition: all 200ms;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+.popup-suds .close:hover {
+  color: #06D85F;
+}
+.popup-suds .content {
+  border-top: 2px solid #166be2;
+  padding: 16px;
+  max-height: 30%;
+  overflow: auto;
+}
+.popup-suds .content h5{
+  border: 1px solid RGBA(var(--bs-secondary-rgb), var(--bs-link-underline-opacity, 1));
+  padding: 10px;
+  border-radius: 15px
+}
+
+.popup-suds .footer{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.popup-suds .content h5:last-child{
+  display : flex;
+  align-items: center;
+  justify-content : space-between;
+}
+
+@media screen and (max-width: 700px){
+  .popup-suds{
+    width: 70%;
+  }
+}
+
+
+.tooltip-button-suds {
+  cursor: pointer;
+}
+
+.tooltip-suds {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateX(10px) translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1;
+}
+
+.tooltip-suds::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #333 transparent transparent;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+.toast {
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+  width: fit-content;
+  padding: 10px 14px;
+  position: absolute;
+  border-radius: 5px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  z-index: 5;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.icon-wrapper {
+  width: 30px;
+  height: 30px;
+  background: var(--secondary);
+  border-radius: 5px;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+.icon {
+  background: var(--primary);
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.icon::before, .icon::after {
+  position: absolute;
+  content: "";
+  background: var(--secondary);
+  border-radius: 5px;
+  top: 50%;
+  left: 50%;
+}
+
+.toast-message {
+  padding: 5px 20px 5px 10px;
+}
+
+.toast-message h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #404040;
+}
+
+.toast-close {
+  position: relative;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: rgba(0,0,0,0);
+  transition: background 0.2s ease-in-out;
+}
+
+.toast-close:hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.toast-close::before, .toast-close::after {
+  position: absolute;
+  content: '';
+  height: 12px;
+  width: 1px;
+  border-radius: 5px;
+  background: #606060;
+  top: 50%;
+  left: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.toast-close:hover::before, .toast-close:hover::after {
+  background: #404040;
+}
+
+.toast-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.toast-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@keyframes close {
+  from {
+    top: 5px;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    visibility: visible;
+  }
+  to {
+    top: -25px;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+    visibility: hidden;
+  }
+}
+
+@keyframes open {
+  from {
+    top: -25px;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+    visibility: hidden;
+  }
+  to {
+    top: 5px;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    visibility: visible;
+  }
+}
+
+.timer {
+  width: 0%;
+  height: 4px;
+  background: var(--primary);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-top-right-radius: 5px;
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.timer-animation {
+  animation: countdown 5s linear forwards;
+}
+
+@keyframes countdown {
+  from {
+    width: 100%;
+  } 
+  to {
+    width: 0%;
+  } 
+}
+
+/* ----------------------- */
+/* Success Styling         */
+/* ----------------------- */
+.success {
+  --primary: #2DD743;
+  --secondary: #E3FEE6;
+}
+
+.success .icon {
+  transform: rotate(-45deg);
+}
+
+.success .icon::before {
+  width: 10px;
+  height: 3px;
+  transform: translate(calc(-50% + 1px), calc(-50% + 1px));
+}
+
+.success .icon::after {
+  width: 3px;
+  height: 6px;
+  transform: translate(calc(-50% - 3px), calc(-50% - 1px));
+}
+
+
+
+
 :root {
   --bs-body-bg: #fff;
   --bs-body-bg-rgb: 255, 255, 255;

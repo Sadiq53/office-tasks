@@ -4,6 +4,7 @@ import {useFormik} from 'formik'
 import AddMemberSchema from '../../../../schema/AddMemberSchema'
 import { handleAddMemberData, resetState } from '../../../../redux/AdminDataSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import Toast from '../../shared/Toast/Toast'
 
 const AddMembers = () => {
 
@@ -13,6 +14,15 @@ const AddMembers = () => {
   const isFullfilled = useSelector(state => state.AdminDataSlice?.isFullfilled);
   const [showAlert, setShowAlert] = useState(false)
   const [alertMsg, setAlertMsg] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
+  const openToast = () => {
+    setShowToast(true);
+  };
+
+  const closeToast = () => {
+    setShowToast(false);
+  };
 
   let addMemberForm = useFormik({
     validationSchema : AddMemberSchema,
@@ -136,6 +146,14 @@ const AddMembers = () => {
         </div>
       </div>
     </div>
+    <button id="successBtn" className='successBtn success' onClick={openToast}>Success</button>
+      {showToast && (
+        <Toast 
+          type="success" 
+          message="This is a success message!" 
+          onClose={closeToast} 
+        />
+      )}
 
     </>
   )

@@ -14,33 +14,19 @@ route.get('/', async(req, res)=>{
 route.post('/', async(req, res)=>{
     try{
         if(req.body){
-            const email = req.body.member_email;
-            const chckUser = await memberData.findOne({member_email : email})
+            const {formData, createdat, password, formatdate} = req.body;
+            const {member_email} = formData
+            const chckUser = await memberData.findOne({member_email : member_email})
             if(!chckUser) {
-                await memberData.create(req.body);
-                // creating the member created Date in Proper Formate
-                const currentDate = new Date();
-                const options = {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-                };
-                const formattedDate = currentDate.toLocaleString('en-US', options);
-                // creating the member created Date in Proper Formate
-
-                // Creating Password For Member
-                const password = generateRandomString.generate(7);
-                // Creating Password For Member
+                await memberData.create(formData);
                 
                 // Creating the Object to Update in Users Collection
                 const object = {
-                    formatdate : formattedDate,
-                    password : password
+                    formatdate : formatdate,
+                    password : password,
+                    createdat : createdat,
                 }
-                await memberData.updateMany({member_email : email}, {$set : object})
+                await memberData.updateMany({member_email : member_email}, {$set : object})
                 // Creating the Object to Update in Users Collection
 
                 res.send({status : 200})

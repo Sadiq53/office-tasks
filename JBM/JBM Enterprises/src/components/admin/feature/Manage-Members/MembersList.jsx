@@ -3,23 +3,24 @@ import Header from '../../shared/Header/Header'
 import { useDispatch, useSelector } from 'react-redux'
 import { handleDeleteMember, resetState } from '../../../../redux/AdminDataSlice';
 import ViewPassModal from './ViewPassModal'
+import DeleteMemberModal from './DeleteMemberModal'
 
 const MembersList = () => {
 
   const [finalData, setFinalData] = useState([]);
   const memberData = useSelector(state => state.AdminDataSlice.member)
+  const isProcessing = useSelector(state => state.AdminDataSlice.isProcessing)
   const [searchQuery, setSearchQuery] = useState('');
-  const dispatch = useDispatch();
   const [userData, setUserData] = useState({});
-  const isFullfilled = useSelector(state => state.AdminDataSlice?.isFullfilled)
-  const clsModal = useRef();
-
+  const [dataPerView, setDataPerView] = useState(0);
+  const [paginationLength, setPaginationLength] = useState([1])
+  const [currentIndex, setCurrentIndex] = useState(1)
 
   const findMember = (query) => {
     if (query) {
       const lowercasedQuery = query.toLowerCase();
       setFinalData(
-        memberData?.filter((value) =>
+        finalData?.filter((value) =>
           value.member_name.toLowerCase().includes(lowercasedQuery)
         )
       );
@@ -32,21 +33,43 @@ const MembersList = () => {
     setSearchQuery(event);
     findMember(event);
   }
-  
-  const deleteMember = () =>{
-    dispatch(handleDeleteMember(userData))
-  }
+
+
+  useEffect(() => {
+    // Check to prevent setting invalid pagination values
+    if (dataPerView > 0 && memberData.length > 0) {
+      const startIndex = (currentIndex - 1) * dataPerView;
+      const lastIndex = currentIndex * dataPerView;
+      setFinalData(memberData.slice(startIndex, lastIndex));
+
+      const len = memberData.length;
+      const length = Math.ceil(len / dataPerView); // Corrected: Ensure length is always valid
+      const arr = Array.from({ length }, (_, i) => i + 1); // Create pagination array safely
+      setPaginationLength(arr);
+    } else {
+      // Handle cases when dataPerView is 0 or invalid
+      setFinalData(memberData);
+      setPaginationLength([1]);
+      setCurrentIndex(1);
+    }
+  }, [dataPerView, memberData, currentIndex]);
 
   useEffect(()=>{
-    setFinalData(memberData)
+    if(isProcessing){
+
+    } else {
+      setFinalData(memberData)
+    }
   }, [memberData])
   
-  useEffect(()=>{
-    if(isFullfilled) {
-      clsModal.current.click();
-      dispatch(resetState())
+
+  const showPopUp = (value) =>{
+    if(value === 'view') {
+      document.getElementById("viewModal").classList.add('show')
+    } else { 
+      document.getElementById("deleteModal").classList.add('show')
     }
-  }, [isFullfilled])
+  }
 
   return (
     <>
@@ -73,9 +96,11 @@ const MembersList = () => {
                 aria-controls="table-style-hover"
                 className="form-select form-select-sm"
                 id="dt-length-3"
+                onChange={(event)=>{setDataPerView(Number(event.target.value))}}
               >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
+                <option>Select</option>
+                <option value={2}>2</option>
+                <option value={5}>5</option>
                 <option value={50}>50</option>
                 <option value={100}>100</option>
               </select>
@@ -92,7 +117,7 @@ const MembersList = () => {
                 placeholder=""
                 aria-controls="table-style-hover"
                 value={searchQuery}
-                onChange={(event)=>{handleSearchChange (event.target.value)}}
+                onChange={(event)=>{handleSearchChange(event.target.value)}}
               />
             </div>
           </div>
@@ -137,50 +162,12 @@ const MembersList = () => {
                       <td className="dt-type-date">{value?.address}</td>
                       <td className="dt-type-numeric">{value?.formatdate}</td>
                       <td className="dt-type-numeric"></td>
-                      <td className="dt-type-numeric"><button className='btn btn-sm btn-outline-secondary' data-bs-toggle="modal"
-                        data-bs-target="#viewModal" onClick={()=>{setUserData(value)}} type='button' >View</button></td>
-                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' onClick={()=>{setUserData(value)}} type='button' data-bs-target="#deleteModal" data-bs-toggle="modal" >Delete</button></td>
+                      <td className="dt-type-numeric"><button  className='btn btn-sm btn-outline-secondary' onClick={(event)=>{setUserData(value), showPopUp("view")}} type='a' >View</button></td>
+                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' onClick={()=>{setUserData(value), showPopUp("delete")}} type='button'>Delete</button></td>
                   </tr>
                   ))
                 }
               </tbody>
-              {/* <tfoot>
-                <tr role="row">
-                  <th data-dt-column={0} rowSpan={1} colSpan={1}>
-                    <span className="dt-column-title">Name</span>
-                  </th>
-                  <th data-dt-column={1} rowSpan={1} colSpan={1}>
-                    <span className="dt-column-title">Position</span>
-                  </th>
-                  <th data-dt-column={2} rowSpan={1} colSpan={1}>
-                    <span className="dt-column-title">Office</span>
-                  </th>
-                  <th
-                    data-dt-column={3}
-                    rowSpan={1}
-                    colSpan={1}
-                    className="dt-type-numeric"
-                  >
-                    <span className="dt-column-title">Age</span>
-                  </th>
-                  <th
-                    data-dt-column={4}
-                    rowSpan={1}
-                    colSpan={1}
-                    className="dt-type-date"
-                  >
-                    <span className="dt-column-title">Start date</span>
-                  </th>
-                  <th
-                    data-dt-column={5}
-                    rowSpan={1}
-                    colSpan={1}
-                    className="dt-type-numeric"
-                  >
-                    <span className="dt-column-title">Salary</span>
-                  </th>
-                </tr>
-              </tfoot> */}
             </table>
           </div>
         </div>
@@ -192,24 +179,14 @@ const MembersList = () => {
               id="table-style-hover_info"
               role="status"
             >
-              Showing 1 to 10 of 30 entries
+              {
+                `showing 1 to ${finalData?.length} of ${memberData?.length} entries`
+              }
             </div>
           </div>
           <div className="col-md-auto ms-auto ">
             <div className="dt-paging paging_full_numbers">
               <ul className="pagination">
-                <li className="dt-paging-button page-item disabled">
-                  <a
-                    className="page-link first"
-                    aria-controls="table-style-hover"
-                    aria-disabled="true"
-                    aria-label="First"
-                    data-dt-idx="first"
-                    tabIndex={-1}
-                  >
-                    «
-                  </a>
-                </li>
                 <li className="dt-paging-button page-item disabled">
                   <a
                     className="page-link previous"
@@ -222,9 +199,23 @@ const MembersList = () => {
                     ‹
                   </a>
                 </li>
-                <li className="dt-paging-button page-item active">
-                  <a
-                    href="#"
+                {
+                  paginationLength ? paginationLength?.map((value, index)=>(
+                    <li className="dt-paging-button page-item ">
+                  <button
+                    className="page-link"
+                    aria-controls="table-style-hover"
+                    aria-current="page"
+                    data-dt-idx={0}
+                    tabIndex={0}
+                    onClick={()=>setCurrentIndex(value)}
+                  >
+                    {index+1}
+                  </button>
+                </li>
+                  )) : (
+                    <li className="dt-paging-button page-item ">
+                  <button
                     className="page-link"
                     aria-controls="table-style-hover"
                     aria-current="page"
@@ -232,30 +223,10 @@ const MembersList = () => {
                     tabIndex={0}
                   >
                     1
-                  </a>
+                  </button>
                 </li>
-                <li className="dt-paging-button page-item">
-                  <a
-                    href="#"
-                    className="page-link"
-                    aria-controls="table-style-hover"
-                    data-dt-idx={1}
-                    tabIndex={0}
-                  >
-                    2
-                  </a>
-                </li>
-                <li className="dt-paging-button page-item">
-                  <a
-                    href="#"
-                    className="page-link"
-                    aria-controls="table-style-hover"
-                    data-dt-idx={2}
-                    tabIndex={0}
-                  >
-                    3
-                  </a>
-                </li>
+                  )
+                }
                 <li className="dt-paging-button page-item">
                   <a
                     href="#"
@@ -266,18 +237,6 @@ const MembersList = () => {
                     tabIndex={0}
                   >
                     ›
-                  </a>
-                </li>
-                <li className="dt-paging-button page-item">
-                  <a
-                    href="#"
-                    className="page-link last"
-                    aria-controls="table-style-hover"
-                    aria-label="Last"
-                    data-dt-idx="last"
-                    tabIndex={0}
-                  >
-                    »
                   </a>
                 </li>
               </ul>
@@ -293,91 +252,18 @@ const MembersList = () => {
         </div>
       </div>
 
-
-      
-
   <ViewPassModal props={userData} />
-  {/* <div
-    className="modal fade"
-    id="viewModal"
-    tabIndex={-1}
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
-    <div className="modal-dialog">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h1 className="modal-title fs-5" id="exampleModalLabel">
-            Member Password
-          </h1>
-          <button
-            type="button"
-            className="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          />
-        </div>
-        <div className="modal-body">
-          {
-            userData ? (
-              <>
-                <h5>Name : {userData?.member_name}</h5>
-                <h5>Email ID : {userData?.member_email}</h5>
-                <h5>Password : {userData?.password} <button className='btn' onClick={()=>{navigator.clipboard.writeText(userData?.password)}}><i class="fa-regular fa-copy"></i></button></h5>
-              </>
-            ) : null
-          }
-        </div>
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  </div> */}
+  <DeleteMemberModal props={userData} />
 
-
-  <div
-    className="modal fade"
-    id="deleteModal"
-    tabIndex={-1}
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
-    <div className="modal-dialog">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h1 className="modal-title fs-5" id="exampleModalLabel">
-            Are You Sure, You Want to Delete {userData ? userData?.member_name : null}
-          </h1>
-        </div>
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            data-bs-dismiss="modal"
-            ref={clsModal}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={deleteMember}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
+  <div className="loader" >
+  <div className="p-4 text-center">
+    <div className="custom-loader" />
+    <h2 className="my-3 f-w-400">Loading..</h2>
+    <p className="mb-0">
+      Please wait while we get your information from the web
+    </p>
   </div>
-
-
+</div>
 
 
     </>
