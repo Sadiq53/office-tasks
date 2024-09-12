@@ -2,6 +2,16 @@ import React from 'react'
 import {NavLink} from 'react-router-dom'
 
 const Header = () => {
+
+  const showSideBar = (value) =>{
+    // if(value === 'show') {
+    //   document.getElementById('toggle-mob').classList.add('mob-sidebar-active')
+    // } else { 
+    //   document.getElementById('toggle-mob').classList.remove('mob-sidebar-active')
+    // }
+    
+  }
+
   return (
     <>
   {/* [ Pre-loader ] start */}
@@ -12,25 +22,28 @@ const Header = () => {
   </div>
   {/* [ Pre-loader ] End */}
   
+
+  
+
+
   
   {/* [ Sidebar Menu ] start */}
-  <nav className="pc-sidebar">
+  <nav className="pc-sidebar" id='toggle-mob'>
     <div className="navbar-wrapper">
       <div className="m-header">
-        <a
-          href="https://html.phoenixcoded.net/light-able/bootstrap/dashboard/index.html"
+        <NavLink to='/'
           className="b-brand text-primary"
         >
           {/* ========   Change your logo from here   ============ */}
           <img
-            src="https://html.phoenixcoded.net/light-able/bootstrap/assets/images/logo-dark.svg"
+            src="./src/assets/images/logo.png"
             alt="logo image"
-            className="logo-lg"
+            className="logo-lg width-6"
           />
-          <span className="badge bg-brand-color-2 rounded-pill ms-2 theme-version">
+          {/* <span className="badge bg-brand-color-2 rounded-pill ms-2 theme-version">
             v1.2.0
-          </span>
-        </a>
+          </span> */}
+        </NavLink>
       </div>
       <div className="navbar-content">
         <ul className="pc-navbar">
@@ -329,14 +342,14 @@ const Header = () => {
         <ul className="list-unstyled">
           {/* ======= Menu collapse Icon ===== */}
           <li className="pc-h-item pc-sidebar-collapse">
-            <a href="#" className="pc-head-link ms-0" id="sidebar-hide">
+            <button  className="pc-head-link ms-0" onClick={showSideBar('hide')} id="sidebar-hide">
               <i className="ti ti-menu-2" />
-            </a>
+            </button>
           </li>
           <li className="pc-h-item pc-sidebar-popup">
-            <a href="#" className="pc-head-link ms-0" id="mobile-collapse">
+            <button  className="pc-head-link ms-0" onClick={showSideBar('show')} id="mobile-collapse">
               <i className="ti ti-menu-2" />
-            </a>
+            </button>
           </li>
           <li className="dropdown pc-h-item d-inline-flex d-md-none">
             <a

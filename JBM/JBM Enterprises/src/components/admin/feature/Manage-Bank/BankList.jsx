@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../shared/Header/Header'
 import {useSelector} from 'react-redux'
+import DeleteBankModal from './DeleteBankModal';
 
 const BankList = () => {
 
   const [finalData, setFinalData] = useState([]);
+  const [bankInfo, setBankInfo] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const bankData = useSelector(state => state.AdminDataSlice?.bank);
   const findMember = (query) => {
@@ -19,6 +21,10 @@ const BankList = () => {
       setFinalData(bankData); // Reset to original data if query is empty
     }
   };
+
+  const showPopUp = () => {
+    document.getElementById("deleteModal").classList.add('show')
+  }
 
   const handleSearchChange  = (event) =>{
     setSearchQuery(event);
@@ -49,7 +55,7 @@ const BankList = () => {
       >
         <div className="row mt-2 justify-content-between">
           <div className="col-md-auto me-auto ">
-            <div className="dt-length">
+            {/* <div className="dt-length">
               <select
                 name="table-style-hover_length"
                 aria-controls="table-style-hover"
@@ -62,7 +68,7 @@ const BankList = () => {
                 <option value={100}>100</option>
               </select>
               <label htmlFor="dt-length-3"> entries per page</label>
-            </div>
+            </div> */}
           </div>
           <div className="col-md-auto ms-auto ">
             <div className="dt-search">
@@ -108,7 +114,7 @@ const BankList = () => {
                     <tr key={index}>
                       <td className="sorting_1">{index+1}</td>
                       <td>{value?.bank}</td>
-                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' type='button' >Delete</button></td>
+                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' onClick={()=>{setBankInfo(value), showPopUp()}} type='button'><i class="fa-solid fa-trash-can"></i> Delete</button></td>
                   </tr>
                   ))
                 }
@@ -224,6 +230,9 @@ const BankList = () => {
           </div>
         </div>
       </div>
+
+      <DeleteBankModal props={bankInfo} />
+
     </>
   )
 }

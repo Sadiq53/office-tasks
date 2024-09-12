@@ -78,6 +78,19 @@ File: style.css
   justify-content : space-between;
 }
 
+.bank-sec{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bank-sec div:first-child{
+  width : 90%;
+}
+.bank-sec button{
+  width : 10%;
+}
+
 .popup-suds h2 {
   margin-top: 0;
   color: #333;
@@ -8827,7 +8840,18 @@ textarea.is-invalid.dataTable-input {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
 }
+.underline{
+  text-decoration: underline;
+}
+.text-primary {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
+}
 [data-pc-direction=ltr] .text-secondary {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-secondary-rgb), var(--bs-text-opacity)) !important;
+}
+.text-secondary {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-secondary-rgb), var(--bs-text-opacity)) !important;
 }
@@ -8836,6 +8860,10 @@ textarea.is-invalid.dataTable-input {
   color: rgba(var(--bs-success-rgb), var(--bs-text-opacity)) !important;
 }
 [data-pc-direction=ltr] .text-info {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-info-rgb), var(--bs-text-opacity)) !important;
+}
+.text-info{
   --bs-text-opacity: 1;
   color: rgba(var(--bs-info-rgb), var(--bs-text-opacity)) !important;
 }
@@ -12880,6 +12908,9 @@ textarea.is-invalid.dataTable-input {
 [data-pc-direction=rtl] .d-flex {
   display: flex !important;
 }
+.d-flex{
+  display: flex !important;
+}
 [data-pc-direction=rtl] .d-inline-flex {
   display: inline-flex !important;
 }
@@ -13757,6 +13788,10 @@ textarea.is-invalid.dataTable-input {
   color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
 }
 [data-pc-direction=rtl] .text-danger {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
+}
+.text-danger{
   --bs-text-opacity: 1;
   color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
 }
@@ -26593,6 +26628,16 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
   opacity: 0;
 }
 
+.justify-content-evenly{
+  justify-content: space-evenly;
+}
+
+.width-6{
+  width : 6%;
+}
+.loader h2{
+  text-align: center !important;
+}
 .custom-loader {
   margin: 0 auto;
   width: 50px;
@@ -26670,6 +26715,36 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
 .card-gallery:hover .gallery-hover-data {
   transform: scale(1);
   opacity: 1;
+}
+
+body{
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+ height: 10px;
+ width : 10px
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: none; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #b5b5b5; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+/* ::-webkit-scrollbar-thumb:hover {
+  background: #b30000; 
+} */
+
+.align-items-center{
+  align-items: center !important;
 }
 
 .table-invoice-comp {

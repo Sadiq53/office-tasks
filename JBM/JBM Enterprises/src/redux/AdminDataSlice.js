@@ -33,6 +33,15 @@ const handleAddMemberData = createAsyncThunk('handleAddMemberData', async(formda
     }
 });
 
+const handleDeleteFile = createAsyncThunk('handleDeleteFile', async(formData)=>{
+    const response = await axios.delete(`${API_URL}/data/${formData}`);
+    if(response.data.status === 200) {
+        return formData;
+    } else {
+        return
+    }
+});
+
 const handleDeleteMember = createAsyncThunk('handleDeleteMember', async(user) =>{
     const response = await axios.delete(`${API_URL}/member/${user?.member_email}`)
     if(response.data.status === 200) {
@@ -54,7 +63,16 @@ const handleManageTags = createAsyncThunk('handleManageTags', async(formData) =>
 const handleGetAllData = createAsyncThunk('handleGetAllData', async() =>{
     const response = await axios.get(`${API_URL}/member`)
     return response.data || [];
-})
+});
+
+const handleBulkFileDelete = createAsyncThunk('handleBulkFileDelete', async(formData) => {
+    const response = await axios.post(`${API_URL}/data/bulk-delete`, formData);
+    if(response.data.status === 200) {
+        return formData
+    } else { 
+        return
+    }
+});
 
 const handleAddBankData = createAsyncThunk('handleAddBankData', async(formData)=>{
     const response = await axios.post(`${API_URL}/bank`, formData);
@@ -65,11 +83,20 @@ const handleAddBankData = createAsyncThunk('handleAddBankData', async(formData)=
     }
 });
 
+const handleDeleteBank = createAsyncThunk('handleDeleteBank', async(formData) => {
+    const response = await axios.delete(`${API_URL}/bank/${formData}`);
+    if(response.data.status === 200){
+        return formData
+    } else { 
+        return
+    }
+});
+
 const handleData = createAsyncThunk('handleData', async(formData) =>{
-    // console.log(formData)
-    const response = await axios.post(`${API_URL}/data`, formData);
+    const response = await axios.post(`${API_URL}/data`, formData, { headers : { 'Content-Type' : 'multipart/form-data' } });
+    console.log(response.data)
     if(response.data.status === 200) {
-        return formData;
+        return response.data.filedata;
     } else {
         return 
     }
@@ -81,6 +108,7 @@ const initialState = {
     member : [],
     bank : [],
     manageTags : [],
+    file : [],
     isError : false,
     isFullfilled : false,
     isProcessing : false,
@@ -94,7 +122,6 @@ const AdminDataSlice = createSlice({
             state.isError = false;
             state.isFullfilled = false;
         },
-        // handleMemberSearch : (state, action)
     },
     extraReducers : builder =>{
         builder.addCase(handleAddMemberData.fulfilled, (state, action) =>{
@@ -120,19 +147,23 @@ const AdminDataSlice = createSlice({
             state.member = action.payload?.memberData;
             state.bank = action.payload?.bankData;
             state.manageTags = action.payload?.manageTags;
-        });
-        builder.addCase(handleGetAllData.fulfilled, (state, action) =>{
-            state.member = action.payload?.memberData;
-            state.bank = action.payload?.bankData;
-            state.manageTags = action.payload?.manageTags;
+            state.file = action.payload?.fileData
             state.isProcessing = false;
         });
         builder.addCase(handleGetAllData.pending, (state, action) =>{
-            state.isProcessing = true;
+            state.isProcessing = true
         });
         builder.addCase(handleAddBankData.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.bank?.push(action.payload);
+                state.isFullfilled = true;
+            } else {
+                state.isError = true
+            }
+        });
+        builder.addCase(handleDeleteBank.fulfilled, (state, action)=>{
+            if(action?.payload) {
+                state.bank = state?.bank?.filter(value => value._id != action?.payload)
                 state.isFullfilled = true;
             } else {
                 state.isError = true
@@ -154,9 +185,33 @@ const AdminDataSlice = createSlice({
                 state.isError = true
             }
         });
+        builder.addCase(handleData.fulfilled, (state, action)=>{
+            if(action?.payload) {
+                state.file?.push(action.payload)
+                state.isFullfilled = true;
+            } else {
+                state.isError = true;
+            }
+        });
+        builder.addCase(handleDeleteFile.fulfilled, (state, action)=>{
+            if(action?.payload) {
+                state.file = state.file?.filter(value => value._id !== action?.payload)
+                state.isFullfilled = true;
+            } else {
+                state.isError = true;
+            }
+        });
+        builder.addCase(handleBulkFileDelete.fulfilled, (state, action)=>{
+            if(action?.payload) {
+                state.file = [];
+                state.isFullfilled = true;
+            } else {
+                state.isError = true;
+            }
+        });
     }
 })
 
 export default AdminDataSlice.reducer;
-export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember};
+export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember, handleDeleteFile, handleDeleteBank, handleBulkFileDelete};
 export const {resetState} = AdminDataSlice.actions

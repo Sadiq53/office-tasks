@@ -20,4 +20,14 @@ route.post('/', async(req, res)=>{
     }
 });
 
+route.delete('/:id', async(req, res)=>{
+    const bankId = req.params.id;
+    const isBankPresent = await bankData.findOne({_id : bankId});
+    if(isBankPresent) {
+        await bankData.deleteOne({_id : bankId})
+        res.send({status : 200})
+    }
+
+});
+
 module.exports = route;

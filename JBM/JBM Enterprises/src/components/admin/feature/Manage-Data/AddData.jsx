@@ -1,10 +1,10 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Header from '../../shared/Header/Header'
 import {useFormik} from 'formik'
 import { useState } from 'react'
 import {useDispatch, useSelector} from 'react-redux';
 import AddDataSchema from '../../../../schema/AddDataSchema'
-import { handleData } from '../../../../redux/AdminDataSlice';
+import { handleData, resetState } from '../../../../redux/AdminDataSlice';
 import { API_URL } from '../../../../util/API_URL';
 
 
@@ -13,9 +13,13 @@ const AddData = () => {
   let [ checkFileFormat, setCheckFileFormat ] = useState(0)
   let [ isFileEmpty, setIsFileEmpty ] = useState(false)
   let [ fileData, setFileData ] = useState("")
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMsg, setAlertMsg] = useState("");
+  const isError = useSelector(state => state.AdminDataSlice.isError)
+  const isFullfilled = useSelector(state => state.AdminDataSlice.isFullfilled)
   let chckFile = useRef();
   const dispatch = useDispatch()
-
+  const resetForm = useRef()
   const banks = useSelector(state => state.AdminDataSlice?.bank)
 
   const handleFileUpload = (e) =>{
@@ -39,7 +43,7 @@ const AddData = () => {
     onSubmit : async(formData) => {
         let vForm = new FormData();
         const file = fileData
-          vForm.set("File", file);
+          vForm.set("file", file);
           vForm.set("bank", formData?.bank); 
         // for (let [key, value] of vForm) {
         //   console.log(`${key}: ${value}`);
@@ -56,6 +60,32 @@ const AddData = () => {
       }
     })
 
+    useEffect(()=>{
+      // console.log(isError)
+      if(isError) {
+        setShowAlert(true)
+        setAlertMsg("Data Already Exist!!")
+        setTimeout(()=>{
+          setShowAlert(false)
+          setAlertMsg("")
+        }, 5000)
+        dispatch(resetState())
+      } 
+    }, [isError])
+
+    useEffect(()=>{
+      if(isFullfilled) {
+        setAlertMsg("Data Added Successfully")
+        setShowAlert(true)
+        setTimeout(()=>{
+          setShowAlert(false);
+          setAlertMsg("")
+        },3000)
+        resetForm.current.click();
+        dispatch(resetState())
+      }
+    }, [isFullfilled])
+
   return (
     <>
         <Header />
@@ -69,6 +99,7 @@ const AddData = () => {
               <a href="./public/assets/samplefiles/sample_sheet.xlsx" download='Sample-File.xlsx'>Download Sample File</a>
             </div>
             <form onSubmit={addDataForm.handleSubmit}>
+            <button ref={resetForm} style={{visibility : "hidden"}} type='reset'></button>
             <div className="card-body">
                 <div className="mb-3">
                   <label className="form-label">Upload Excel Sheet</label>
@@ -103,7 +134,9 @@ const AddData = () => {
                   </small> : null
                   }
                 </div>
-                
+                {
+                  showAlert ? <div className="alert alert-success text-success">{alertMsg}</div> : null
+                }
             </div>
             <div className="card-footer text-right">
               <button type='submit' onClick={()=>{checkFileFormat === 0 ? setIsFileEmpty(true) : setIsFileEmpty(false) }}  disabled={checkFileFormat === 1 ? true : false} className='btn btn-primary '>Submit</button>

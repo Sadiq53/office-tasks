@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
+import {NavLink} from 'react-router-dom'
 import Header from '../../shared/Header/Header'
-import { useDispatch, useSelector } from 'react-redux'
-import { handleDeleteMember, resetState } from '../../../../redux/AdminDataSlice';
+import { useSelector } from 'react-redux'
 import ViewPassModal from './ViewPassModal'
 import DeleteMemberModal from './DeleteMemberModal'
 
@@ -20,7 +20,7 @@ const MembersList = () => {
     if (query) {
       const lowercasedQuery = query.toLowerCase();
       setFinalData(
-        finalData?.filter((value) =>
+        memberData?.filter((value) =>
           value.member_name.toLowerCase().includes(lowercasedQuery)
         )
       );
@@ -43,8 +43,8 @@ const MembersList = () => {
       setFinalData(memberData.slice(startIndex, lastIndex));
 
       const len = memberData.length;
-      const length = Math.ceil(len / dataPerView); // Corrected: Ensure length is always valid
-      const arr = Array.from({ length }, (_, i) => i + 1); // Create pagination array safely
+      const length = Math.ceil(len / dataPerView); 
+      const arr = Array.from({ length }, (_, i) => i + 1); 
       setPaginationLength(arr);
     } else {
       // Handle cases when dataPerView is 0 or invalid
@@ -54,11 +54,15 @@ const MembersList = () => {
     }
   }, [dataPerView, memberData, currentIndex]);
 
+  
   useEffect(()=>{
     if(isProcessing){
-
+      document.getElementById('show-loader').style.display = 'flex'
+      document.getElementById('show-loader').style.opacity = '1'
     } else {
       setFinalData(memberData)
+      document.getElementById('show-loader').style.display = 'none'
+      document.getElementById('show-loader').style.opacity = '0'
     }
   }, [memberData])
   
@@ -146,7 +150,6 @@ const MembersList = () => {
                   <th>Member Email</th>
                   <th>Address</th>
                   <th>Created at</th>
-                  <th>Status</th>
                   <th>Password</th>
                   <th>Delete</th>
                 </tr>
@@ -161,9 +164,8 @@ const MembersList = () => {
                       <td className="dt-type-numeric">{value?.member_email}</td>
                       <td className="dt-type-date">{value?.address}</td>
                       <td className="dt-type-numeric">{value?.formatdate}</td>
-                      <td className="dt-type-numeric"></td>
-                      <td className="dt-type-numeric"><button  className='btn btn-sm btn-outline-secondary' onClick={(event)=>{setUserData(value), showPopUp("view")}} type='a' >View</button></td>
-                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' onClick={()=>{setUserData(value), showPopUp("delete")}} type='button'>Delete</button></td>
+                      <td className="dt-type-numeric"><button  className='btn btn-sm btn-outline-secondary' onClick={(event)=>{setUserData(value), showPopUp("view")}} type='a' ><i class="fa-solid fa-eye"></i> View</button></td>
+                      <td className="dt-type-numeric"><button className='btn btn-sm btn-danger' onClick={()=>{setUserData(value), showPopUp("delete")}} type='button'><i class="fa-solid fa-trash-can"></i> Delete</button></td>
                   </tr>
                   ))
                 }
@@ -171,7 +173,7 @@ const MembersList = () => {
             </table>
           </div>
         </div>
-        <div className="row mt-2 justify-content-between">
+        <div className="row mt-2 justify-content-between align-items-center">
           <div className="col-md-auto me-auto ">
             <div
               className="dt-info"
@@ -243,6 +245,9 @@ const MembersList = () => {
             </div>
           </div>
         </div>
+        <div className="mb-3">
+          <NavLink to='/add-members' className='btn btn-info'><i class="fa-solid fa-user-plus"></i> ADD MEMBER</NavLink>
+          </div>
       </div>
     </div>
   </div>
@@ -255,7 +260,7 @@ const MembersList = () => {
   <ViewPassModal props={userData} />
   <DeleteMemberModal props={userData} />
 
-  <div className="loader" >
+  <div className="loader" id='show-loader' >
   <div className="p-4 text-center">
     <div className="custom-loader" />
     <h2 className="my-3 f-w-400">Loading..</h2>

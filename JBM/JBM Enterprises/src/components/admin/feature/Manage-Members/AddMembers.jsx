@@ -5,6 +5,7 @@ import AddMemberSchema from '../../../../schema/AddMemberSchema'
 import { handleAddMemberData, resetState } from '../../../../redux/AdminDataSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import Toast from '../../shared/Toast/Toast'
+import { NavLink } from 'react-router-dom'
 
 const AddMembers = () => {
 
@@ -135,7 +136,7 @@ const AddMembers = () => {
                   }
                 </div>
                 {
-                  showAlert ? <div className="alert alert-success text-success">{alertMsg}</div> : null
+                  showAlert ? <div className="alert alert-success text-success d-flex justify-content-between align-items-center"><div className='text-secondary'>{alertMsg}</div><NavLink to='/members-list' className='btn text-info text-sm underline'>View Members</NavLink></div> : null
                 }
             </div>
             <div className="card-footer text-right">
@@ -146,14 +147,14 @@ const AddMembers = () => {
         </div>
       </div>
     </div>
-    <button id="successBtn" className='successBtn success' onClick={openToast}>Success</button>
+    {/* <button id="successBtn" className='successBtn success' onClick={openToast}>Success</button>
       {showToast && (
         <Toast 
           type="success" 
           message="This is a success message!" 
           onClose={closeToast} 
         />
-      )}
+      )} */}
 
     </>
   )
