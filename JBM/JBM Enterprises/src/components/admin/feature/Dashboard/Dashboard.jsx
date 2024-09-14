@@ -78,7 +78,7 @@ const Dashboard = () => {
     </div>
     </NavLink>
   </div>
-  <div className="col-sm-6 col-xl-4">
+  {/* <div className="col-sm-6 col-xl-4">
     <div className="card statistics-card-1">
       <div className="card-header d-flex align-items-center justify-content-between py-3">
         <h5>Return Orders</h5>
@@ -127,11 +127,11 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-  </div>
+  </div> */}
   {/* [ Row 1 ] end */}
 
   {/* [ Row 2 ] start */}
-  <div className="col-sm-6 col-xl-4">
+  {/* <div className="col-sm-6 col-xl-4">
     <NavLink to='/members-list'>
     <div className="card statistics-card-1">
       <div className="card-header d-flex align-items-center justify-content-between py-3">
@@ -246,7 +246,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-  </div>
+  </div> */}
   {/* [ Row 2 ] end */}
   
 </div>
