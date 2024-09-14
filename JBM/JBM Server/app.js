@@ -9,7 +9,7 @@ app.use(express.urlencoded({extended : true}))
 app.use(cors());
 app.use(routes);
 
-const port = 8080 || process.env.PORT;
+const port = process.env.PORT || 8080;
 app.listen(port, (req, res)=>{
     console.log("server running with port | "+port)
 })
