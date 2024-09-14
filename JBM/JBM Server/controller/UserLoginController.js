@@ -11,7 +11,7 @@ route.post('/', async(req, res) => {
         if(findAccount?.password === password) {
             const token = { id : findAccount?._id }
             const ID = jwt.sign(token?.id.toString(), key)
-            console.log(ID)
+            // console.log(ID)
             res.status(200).set('Content-Type', 'text/plain').send({status : 200, token : ID});
         }
     } else {
