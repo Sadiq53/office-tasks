@@ -24,7 +24,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-1.svg"
+          src="/assets/images/widget/img-status-1.svg"
           alt="img"
           className="img-fluid img-bg h-100"
         />
@@ -55,7 +55,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-2.svg"
+          src="/assets/images/widget/img-status-2.svg"
           alt="img"
           className="img-fluid img-bg"
         />
@@ -104,7 +104,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-3.svg"
+          src="/assets/images/widget/img-status-3.svg"
           alt="img"
           className="img-fluid img-bg"
         />
@@ -139,7 +139,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-1.svg"
+          src="/assets/images/widget/img-status-1.svg"
           alt="img"
           className="img-fluid img-bg h-100"
         />
@@ -172,7 +172,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-2.svg"
+          src="/assets/images/widget/img-status-2.svg"
           alt="img"
           className="img-fluid img-bg"
         />
@@ -223,7 +223,7 @@ const Dashboard = () => {
       </div>
       <div className="card-body">
         <img
-          src="./src/assets/images/widget/img-status-3.svg"
+          src="/assets/images/widget/img-status-3.svg"
           alt="img"
           className="img-fluid img-bg"
         />

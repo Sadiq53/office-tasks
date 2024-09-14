@@ -36,7 +36,7 @@ const Header = () => {
         >
           {/* ========   Change your logo from here   ============ */}
           <img
-            src="./src/assets/images/logo.png"
+            src="/assets/images/logo.png"
             alt="logo image"
             className="logo-lg width-6"
           />
@@ -108,7 +108,7 @@ const Header = () => {
           <li className="pc-item pc-hasmenu">
             <NavLink to="/members-list" className="pc-link">
               <span className="pc-micon">
-              <img className='width-100' src='./src/assets/images/menu-icons/manage membwr.png' />
+              <img className='width-100' src='/assets/images/menu-icons/manage membwr.png' />
               </span>
               <span className="pc-mtext"> Manage Members</span>
               <span className="pc-arrow">
@@ -121,7 +121,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/add-members'
                 >
-                <img src='./src/assets/images/menu-icons/add members.png' />
+                <img src='/assets/images/menu-icons/add members.png' />
                   Add Member
                 </NavLink>
               </li>
@@ -130,7 +130,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/members-list'
                 >
-                <img src='./src/assets/images/menu-icons/members list.png' />
+                <img src='/assets/images/menu-icons/members list.png' />
                   Members List
                 </NavLink>
               </li>
@@ -139,7 +139,7 @@ const Header = () => {
           <li className="pc-item pc-hasmenu">
             <NavLink to="/bank-list" className="pc-link">
               <span className="pc-micon">
-              <img className='width-100' src='./src/assets/images/menu-icons/manage bank.png' />
+              <img className='width-100' src='/assets/images/menu-icons/manage bank.png' />
               </span>
               <span className="pc-mtext">Manage Bank</span>
               <span className="pc-arrow">
@@ -152,7 +152,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/add-bank'
                 >
-                <img src='./src/assets/images/menu-icons/add bank.png' />
+                <img src='/assets/images/menu-icons/add bank.png' />
                   Add Bank
                 </NavLink>
               </li>
@@ -161,7 +161,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/bank-list'
                 >
-                <img src='./src/assets/images/menu-icons/bank list.png' />
+                <img src='/assets/images/menu-icons/bank list.png' />
                   Bank List
                 </NavLink>
               </li>
@@ -170,7 +170,7 @@ const Header = () => {
           <li className="pc-item pc-hasmenu">
             <NavLink to="/data-list" className="pc-link">
               <span className="pc-micon">
-              <img className='width-100' src='./src/assets/images/menu-icons/manage data.png' />
+              <img className='width-100' src='/assets/images/menu-icons/manage data.png' />
               </span>
               <span className="pc-mtext">Manage Data</span>
               <span className="pc-arrow">
@@ -183,7 +183,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/add-data'
                 >
-                    <img src='./src/assets/images/menu-icons/Add data.png' />
+                    <img src='/assets/images/menu-icons/Add data.png' />
                     Add Data
                 </NavLink>
               </li>
@@ -192,7 +192,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/data-list'
                 >
-                    <img src='./src/assets/images/menu-icons/data list.png' />
+                    <img src='/assets/images/menu-icons/data list.png' />
                     Data List
                 </NavLink>
               </li>
@@ -201,7 +201,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/manage-tags'
                 >
-                    <img src='./src/assets/images/menu-icons/manage dashboard tags.png' />
+                    <img src='/assets/images/menu-icons/manage dashboard tags.png' />
                     Manage Dashboard Tags
                 </NavLink>
               </li>
@@ -210,7 +210,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/delete-data'
                 >
-                    <img src='./src/assets/images/menu-icons/delete data.png' />
+                    <img src='/assets/images/menu-icons/delete data.png' />
                     Delete Data
                 </NavLink>
               </li>
@@ -219,7 +219,7 @@ const Header = () => {
           <li className="pc-item pc-hasmenu">
             <NavLink to="/" className="pc-link">
               <span className="pc-micon">
-              <img className='width-100' src='./src/assets/images/menu-icons/location.png' />
+              <img className='width-100' src='/assets/images/menu-icons/location.png' />
               </span>
               <span className="pc-mtext">Manage Location</span>
               <span className="pc-arrow">
@@ -232,7 +232,7 @@ const Header = () => {
                   className="pc-link list-flex"
                   to='/members-list'
                 >
-                    <img src='./src/assets/images/menu-icons/members list.png' />
+                    <img src='/assets/images/menu-icons/members list.png' />
                   Members List
                 </NavLink>
               </li>
@@ -267,7 +267,7 @@ const Header = () => {
           <div className="d-flex align-items-center">
             <div className="flex-shrink-0">
               <img 
-                src="./src/assets/images/user/avatar-1.jpg"
+                src="/assets/images/user/avatar-1.jpg"
                 alt="user-image"
                 className="user-avtar wid-45 rounded-circle"
               />
@@ -567,7 +567,7 @@ const Header = () => {
                     <div className="d-flex">
                       <div className="flex-shrink-0">
                         <img
-                          src="./src/assets/images/user/avatar-2.jpg"
+                          src="/assets/images/user/avatar-2.jpg"
                           alt="user-image"
                           className="user-avtar avtar avtar-s"
                         />
@@ -691,7 +691,7 @@ const Header = () => {
                     <div className="d-flex">
                       <div className="flex-shrink-0">
                         <img
-                          src="./src/assets/images/user/avatar-2.jpg"
+                          src="/assets/images/user/avatar-2.jpg"
                           alt="user-image"
                           className="user-avtar avtar avtar-s"
                         />
@@ -778,7 +778,7 @@ const Header = () => {
               aria-expanded="false"
             >
               <img
-                src="./src/assets/images/user/avatar-2.jpg"
+                src="/assets/images/user/avatar-2.jpg"
                 alt="user-image"
                 className="user-avtar"
               />
@@ -797,7 +797,7 @@ const Header = () => {
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
                           <img
-                            src="./src/assets/images/user/avatar-2.jpg"
+                            src="/assets/images/user/avatar-2.jpg"
                             alt="user-image"
                             className="wid-50 rounded-circle"
                           />
@@ -828,17 +828,17 @@ const Header = () => {
                         </span>
                         <div className="user-group">
                           <img
-                            src="./src/assets/images/user/avatar-1.jpg"
+                            src="/assets/images/user/avatar-1.jpg"
                             alt="user-image"
                             className="avtar"
                           />
                           <img
-                            src="./src/assets/images/user/avatar-2.jpg"
+                            src="/assets/images/user/avatar-2.jpg"
                             alt="user-image"
                             className="avtar"
                           />
                           <img
-                            src="./src/assets/images/user/avatar-3.jpg"
+                            src="/assets/images/user/avatar-3.jpg"
                             alt="user-image"
                             className="avtar"
                           />
