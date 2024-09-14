@@ -48,7 +48,7 @@ const Header = () => {
       <div className="navbar-content">
         <ul className="pc-navbar">
           <li className="pc-item pc-caption">
-            <label>Navigation</label>
+            {/* <label>Navigation</label> */}
             <i className="ph-duotone ph-gauge" />
           </li>
           <li className="pc-item pc-hasmenu">
