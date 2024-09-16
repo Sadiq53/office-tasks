@@ -4966,6 +4966,8 @@ textarea.is-invalid.dataTable-input {
   border-top: 0;
 }
 
+
+
 .card-body {
   flex: 1 1 auto;
   padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
@@ -6210,26 +6212,7 @@ textarea.is-invalid.dataTable-input {
     overflow-y: auto;
   }
 }
-@media (max-width: 767.98px) {
-  .modal-fullscreen-md-down {
-    width: 100vw;
-    max-width: none;
-    height: 100%;
-    margin: 0;
-  }
-  .modal-fullscreen-md-down .modal-content, .modal-fullscreen-md-down .introjs-tooltip {
-    height: 100%;
-    border: 0;
-    border-radius: 0;
-  }
-  .modal-fullscreen-md-down .modal-header,
-  .modal-fullscreen-md-down .modal-footer {
-    border-radius: 0;
-  }
-  .modal-fullscreen-md-down .modal-body {
-    overflow-y: auto;
-  }
-}
+
 @media (max-width: 991.98px) {
   .modal-fullscreen-lg-down {
     width: 100vw;
@@ -31575,6 +31558,40 @@ div.dataTables_wrapper div.dt-row {
 
 .my-5{
   margin: 50px auto;
+}
+
+@media (max-width: 767px) {
+  .modal-fullscreen-md-down {
+    width: 100vw;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+  }
+  .pc-sidebar {
+    position: absolute !important;
+}
+  .pc-header .header-wrapper{
+    flex-direction: column;
+  }
+  .modal-fullscreen-md-down .modal-content, .modal-fullscreen-md-down .introjs-tooltip {
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .modal-fullscreen-md-down .modal-header,
+  .modal-fullscreen-md-down .modal-footer {
+    border-radius: 0;
+  }
+  .modal-fullscreen-md-down .modal-body {
+    overflow-y: auto;
+  }
+  .pc-header {
+    position: relative !important;
+    top: 0;
+}
+.width-6 {
+  width: 30%;
+}
 }
 
 /**  =====================

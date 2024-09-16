@@ -1,16 +1,29 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {NavLink} from 'react-router-dom'
 
 const Header = () => {
 
-  const showSideBar = (value) =>{
-    // if(value === 'show') {
-    //   document.getElementById('toggle-mob').classList.add('mob-sidebar-active')
-    // } else { 
-    //   document.getElementById('toggle-mob').classList.remove('mob-sidebar-active')
-    // }
-    
-  }
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    // Add event listener for clicks outside the sidebar
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Clean up the event listener on component unmount
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSidebarToggle = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   return (
     <>
@@ -22,13 +35,11 @@ const Header = () => {
   </div>
   {/* [ Pre-loader ] End */}
   
-
-  
-
-
-  
   {/* [ Sidebar Menu ] start */}
-  <nav className="pc-sidebar" id='toggle-mob'>
+  <nav  
+   ref={sidebarRef}
+   className={` pc-sidebar rel ${isSidebarOpen ? 'mob-sidebar-active' : ''}`}
+  id='toggle-mob'>
     <div className="navbar-wrapper">
       <div className="m-header">
         <NavLink to='/'
@@ -334,7 +345,7 @@ const Header = () => {
 
 
   {/* [ Header Topbar ] start */}
-  <header className="pc-header">
+  <header className="pc-header abs">
     <div className="header-wrapper">
       {" "}
       {/* [Mobile Media Block] start */}
@@ -342,12 +353,12 @@ const Header = () => {
         <ul className="list-unstyled">
           {/* ======= Menu collapse Icon ===== */}
           <li className="pc-h-item pc-sidebar-collapse">
-            <button  className="pc-head-link ms-0" onClick={showSideBar('hide')} id="sidebar-hide">
+            <button  className="pc-head-link ms-0"  id="sidebar-hide">
               <i className="ti ti-menu-2" />
             </button>
           </li>
           <li className="pc-h-item pc-sidebar-popup">
-            <button  className="pc-head-link ms-0" onClick={showSideBar('show')} id="mobile-collapse">
+            <button  className="pc-head-link ms-0" onClick={() => setIsSidebarOpen(true)} id="mobile-collapse">
               <i className="ti ti-menu-2" />
             </button>
           </li>
