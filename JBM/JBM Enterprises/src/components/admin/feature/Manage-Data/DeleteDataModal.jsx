@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {  handleDeleteFile, resetState } from '../../../../redux/AdminDataSlice'
 
@@ -6,6 +6,8 @@ const DeleteDataModal = (props) => {
 
     const dispatch = useDispatch()
     const isFullfilled = useSelector(state => state.AdminDataSlice?.isFullfilled)
+    const isProcessing = useSelector(state => state.AdminDataSlice?.isProcessing)
+    const [spinner, setSpinner] = useState(false);
     const clsModal = useRef();
 
     const deleteFiles = () =>{
@@ -14,7 +16,14 @@ const DeleteDataModal = (props) => {
     }
 
     useEffect(()=>{
-        if(isFullfilled) {
+        if(isProcessing) {
+            setSpinner(true)
+          }
+        }, [isProcessing]) 
+        
+        useEffect(()=>{
+          if(isFullfilled) {
+          setSpinner(false)
             clsModal.current.click();
             dispatch(resetState())
         }
@@ -37,8 +46,12 @@ const DeleteDataModal = (props) => {
             type="button"
             className="btn btn-md btn-danger"
             onClick={deleteFiles}
+            disabled={spinner}
           >
-            Delete
+            Delete 
+            {
+                spinner ? <i class="fa-solid fa-circle-notch fa-spin"></i> : null
+            }
           </button>
       </div>
     </div>

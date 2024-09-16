@@ -6,7 +6,7 @@ import { handleGetAllData } from '../redux/AdminDataSlice';
 const AdminModule = () => {
 
     const dispatch = useDispatch();
-    const isProcessing = useSelector(state => state.AdminDataSlice.isProcessing)
+    const isProcessing = useSelector(state => state.AdminDataSlice.isDataProcessing)
     useEffect(()=>{
         dispatch(handleGetAllData())
     }, [])

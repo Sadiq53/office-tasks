@@ -15,8 +15,10 @@ const AddData = () => {
   let [ fileData, setFileData ] = useState("")
   const [showAlert, setShowAlert] = useState(false)
   const [alertMsg, setAlertMsg] = useState("");
+  const [spinner, setSpinner] = useState(false);
   const isError = useSelector(state => state.AdminDataSlice.isError)
   const isFullfilled = useSelector(state => state.AdminDataSlice.isFullfilled)
+  const isProcessing = useSelector(state => state.AdminDataSlice.isProcessing)
   let chckFile = useRef();
   const dispatch = useDispatch()
   const resetForm = useRef()
@@ -63,6 +65,7 @@ const AddData = () => {
     useEffect(()=>{
       // console.log(isError)
       if(isError) {
+        setSpinner(false)
         setShowAlert(true)
         setAlertMsg("Data Already Exist!!")
         setTimeout(()=>{
@@ -74,7 +77,15 @@ const AddData = () => {
     }, [isError])
 
     useEffect(()=>{
+      // console.log(isError)
+      if(isProcessing) {
+        setSpinner(true)
+      } 
+    }, [isProcessing])
+    
+    useEffect(()=>{
       if(isFullfilled) {
+        setSpinner(false)
         setAlertMsg("Data Added Successfully")
         setShowAlert(true)
         setTimeout(()=>{
@@ -139,7 +150,7 @@ const AddData = () => {
                 }
             </div>
             <div className="card-footer text-right">
-              <button type='submit' onClick={()=>{checkFileFormat === 0 ? setIsFileEmpty(true) : setIsFileEmpty(false) }}  disabled={checkFileFormat === 1 ? true : false} className='btn btn-primary '>Submit</button>
+              <button type='submit' onClick={()=>{checkFileFormat === 0 ? setIsFileEmpty(true) : setIsFileEmpty(false) }}  disabled={checkFileFormat === 1 || spinner ? true : false} className='btn btn-primary '>Submit {spinner ? <i class="fa-solid fa-circle-notch fa-spin"></i> : null}</button>
             </div>
             </form>
           </div>

@@ -45,23 +45,10 @@ const DeleteData = () => {
       // Handle other case
       const getFileData = RawFileData?.map(item => item?._id);
       setDeletFiles(getFileData ?? []);
+      getFileData?.length !== 0 ? 
+      document.getElementById('deleteModal').classList.add('show') : null
     }
   };
-  
-
-  const deleteSelectedFile = () =>{
-    if(deleteFiles?.length !== 0) {
-      const getFileId = RawFileData?.filter(value => deleteFiles?.includes(value?.name) )?.map(value => value._id)
-      dispatch(handleDeleteFile(getFileId))
-    } else {
-      setAlertMsg("Nothing to Delete")
-    setShowAlert(true)
-    setTimeout(()=>{
-      setShowAlert(false)
-      setAlertMsg("")
-      }, 5000)
-    }
-  }
 
 
 const showPopUp = () =>{

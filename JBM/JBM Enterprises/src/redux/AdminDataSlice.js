@@ -103,6 +103,7 @@ const initialState = {
     isError : false,
     isFullfilled : false,
     isProcessing : false,
+    isDataProcessing : false,
 }
 
 const AdminDataSlice = createSlice({
@@ -130,67 +131,101 @@ const AdminDataSlice = createSlice({
                 }
                 state.member?.push(data);
                 state.isFullfilled = true;
+                state.isProcessing = false
             } else {
                 state.isError = true
+                state.isProcessing = false
             }
+        });
+        builder.addCase(handleAddMemberData.pending, (state, action) =>{
+            state.isProcessing = true
         });
         builder.addCase(handleGetAllData.fulfilled, (state, action) =>{
             state.member = action.payload?.memberData;
             state.bank = action.payload?.bankData;
             state.manageTags = action.payload?.manageTags;
             state.file = action.payload?.fileData
-            state.isProcessing = false;
+            state.isDataProcessing = false;
         });
         builder.addCase(handleGetAllData.pending, (state, action) =>{
-            state.isProcessing = true
+            state.isDataProcessing = true
         });
         builder.addCase(handleAddBankData.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.bank?.push(action.payload);
                 state.isFullfilled = true;
+                state.isProcessing = false
             } else {
                 state.isError = true
+                state.isProcessing = false
             }
         });
         builder.addCase(handleDeleteBank.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.bank = state?.bank?.filter(value => value._id != action?.payload)
                 state.isFullfilled = true;
+                state.isProcessing = false
             } else {
                 state.isError = true
+                state.isProcessing = false
             }
+        });
+        builder.addCase(handleAddBankData.pending, (state, action)=>{
+            state.isProcessing = true
+        });
+        builder.addCase(handleDeleteBank.pending, (state, action)=>{
+            state.isProcessing = true
         });
         builder.addCase(handleManageTags.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.manageTags?.push(action.payload);
                 state.isFullfilled = true;
+                state.isProcessing = false
             } else {
                 state.isError = true
+                state.isProcessing = false
             }
+        });
+        builder.addCase(handleManageTags.pending, (state, action)=>{
+            state.isProcessing = true
         });
         builder.addCase(handleDeleteMember.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.member = state.member?.filter(value => value?.member_email != action.payload.member_email)
                 state.isFullfilled = true;
+                state.isProcessing = false
             } else {
                 state.isError = true
+                state.isProcessing = false
             }
+        });
+        builder.addCase(handleDeleteMember.pending, (state, action)=>{
+            state.isProcessing = true
         });
         builder.addCase(handleData.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.file?.push(action.payload)
                 state.isFullfilled = true;
+                state.isProcessing = false;
             } else {
                 state.isError = true;
+                state.isProcessing = false;
             }
+        });
+        builder.addCase(handleData.pending, (state, action)=>{
+            state.isProcessing = true;
         });
         builder.addCase(handleDeleteFile.fulfilled, (state, action)=>{
             if(action?.payload) {
                 state.file = state.file?.filter(value => !action?.payload?.includes(value?._id))
                 state.isFullfilled = true;
+                state.isProcessing = false;
             } else {
                 state.isError = true;
             }
+        });
+        builder.addCase(handleDeleteFile.pending, (state, action)=>{
+            state.isProcessing = true;
         });
     }
 })

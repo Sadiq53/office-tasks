@@ -16,6 +16,8 @@ const AddMembers = () => {
   const [showAlert, setShowAlert] = useState(false)
   const [alertMsg, setAlertMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const isProcessing = useSelector(state => state.AdminDataSlice?.isProcessing)
+  const [spinner, setSpinner] = useState(false)
 
   const openToast = () => {
     setShowToast(true);
@@ -40,6 +42,7 @@ const AddMembers = () => {
 
   useEffect(()=>{
     if(isError) {
+      setSpinner(false)
       setAlertMsg("Email ID Already Exist!!")
       setTimeout(()=>{
         setAlertMsg("")
@@ -49,7 +52,14 @@ const AddMembers = () => {
   }, [isError])
 
   useEffect(()=>{
+    if(isProcessing) {
+      setSpinner(true)
+    }
+  }, [isProcessing])
+
+  useEffect(()=>{
     if(isFullfilled) {
+      setSpinner(false)
       setAlertMsg("Member Added Successfully")
       setShowAlert(true)
       setTimeout(()=>{
@@ -140,7 +150,7 @@ const AddMembers = () => {
                 }
             </div>
             <div className="card-footer text-right">
-              <button className='btn btn-primary '>Submit</button>
+              <button disabled={spinner} className='btn btn-primary '>Submit {spinner ? <i class="fa-solid fa-circle-notch fa-spin"></i> : null}</button>
             </div>
             </form>
           </div>
