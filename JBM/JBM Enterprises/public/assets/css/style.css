@@ -31622,6 +31622,10 @@ div.dataTables_wrapper div.dt-row {
     display: none;
   }
 
+  body{
+    overflow-x: hidden !important;
+  }
+
   /* Open submenu on click */
   .pc-submenu.open {
     display: block;
@@ -31630,6 +31634,14 @@ div.dataTables_wrapper div.dt-row {
 
 .pc-sidebar.mob-sidebar-active{
   overflow-y: scroll;
+}
+
+.gap-15{
+  gap: 15px;
+}
+
+.font-size-18{
+  font-size: 18px !important;
 }
 
 /**  =====================

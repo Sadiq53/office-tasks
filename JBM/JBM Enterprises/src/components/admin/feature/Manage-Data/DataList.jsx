@@ -113,7 +113,7 @@ const DataList = () => {
               <div className="card-body">
                 <div className="dt-responsive table-responsive">
                   <div id="table-style-hover_wrapper" className="dt-container dt-bootstrap5">
-                    <div className="row mt-2 justify-content-evenly my-3">
+                    <div className="row mt-2 gap-15 justify-content-evenly my-3">
                       <div className="col-md-3 me-auto">
                         <select
                           name="table-style-hover_length"

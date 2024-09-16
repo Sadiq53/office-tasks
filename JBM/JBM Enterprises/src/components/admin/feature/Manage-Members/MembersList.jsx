@@ -92,7 +92,7 @@ const MembersList = () => {
         id="table-style-hover_wrapper"
         className="dt-container dt-bootstrap5"
       >
-        <div className="row mt-2 justify-content-between">
+        <div className="row mt-2 gap-15 justify-content-between">
           <div className="col-md-auto me-auto ">
             <div className="dt-length">
               <select
