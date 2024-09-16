@@ -84,6 +84,7 @@ File: style.css
   gap: 15px;
 }
 
+
 .bank-sec div:first-child{
   width : 90%;
 }
@@ -6716,6 +6717,12 @@ textarea.is-invalid.dataTable-input {
     transition: none;
   }
 }
+
+.custom-checkbox{
+  height: 20px;
+  width: 20px;
+}
+
 .carousel-indicators .active {
   opacity: 1;
 }
@@ -7844,6 +7851,9 @@ textarea.is-invalid.dataTable-input {
 [data-pc-direction=ltr] .d-flex {
   display: flex !important;
 }
+.d-flex {
+  display: flex !important;
+}
 [data-pc-direction=ltr] .d-inline-flex {
   display: inline-flex !important;
 }
@@ -8178,6 +8188,12 @@ textarea.is-invalid.dataTable-input {
 [data-pc-direction=ltr] .justify-content-evenly {
   justify-content: space-evenly !important;
 }
+ .justify-content-around {
+  justify-content: space-around !important;
+}
+ .justify-content-evenly {
+  justify-content: space-evenly !important;
+}
 [data-pc-direction=ltr] .align-items-start {
   align-items: flex-start !important;
 }
@@ -8185,6 +8201,9 @@ textarea.is-invalid.dataTable-input {
   align-items: flex-end !important;
 }
 [data-pc-direction=ltr] .align-items-center {
+  align-items: center !important;
+}
+.align-items-center {
   align-items: center !important;
 }
 [data-pc-direction=ltr] .align-items-baseline {
@@ -8806,6 +8825,9 @@ textarea.is-invalid.dataTable-input {
   text-align: right !important;
 }
 [data-pc-direction=ltr] .text-center {
+  text-align: center !important;
+}
+ .text-center {
   text-align: center !important;
 }
 [data-pc-direction=ltr] .text-decoration-none {
@@ -10130,6 +10152,9 @@ textarea.is-invalid.dataTable-input {
     display: table-cell !important;
   }
   [data-pc-direction=ltr] .d-md-flex {
+    display: flex !important;
+  }
+   .d-md-flex {
     display: flex !important;
   }
   [data-pc-direction=ltr] .d-md-inline-flex {

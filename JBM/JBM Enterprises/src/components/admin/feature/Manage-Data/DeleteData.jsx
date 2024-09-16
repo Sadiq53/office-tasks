@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Header from '../../shared/Header/Header'
 import { useDispatch, useSelector } from 'react-redux';
-import {useFormik} from 'formik'
-import DeleteFileSchema from '../../../../schema/DeleteFileSchema';
-import { handleBulkFileDelete, handleDeleteFile, resetState } from '../../../../redux/AdminDataSlice';
+import { handleDeleteFile, resetState } from '../../../../redux/AdminDataSlice';
+import DeleteDataModal from './DeleteDataModal';
 
 const DeleteData = () => {
 
@@ -14,30 +13,73 @@ const DeleteData = () => {
   const isError = useSelector(state => state.AdminDataSlice?.isError);
   const isFullfilled = useSelector(state => state.AdminDataSlice?.isFullfilled);
   const [breakDownFIleName, setBreakDownFIleName] = useState([]);
+  const [deleteFiles, setDeletFiles] = useState([])
   const resetForm = useRef();
 
-  const deleteFileForm = useFormik({
-    validationSchema : DeleteFileSchema,
-    initialValues : {
-      file : ''
-    },
-    onSubmit : (formData) => {
-      const {file} = formData
-      const getFileData = RawFileData?.filter(value => value.name === file)
-      dispatch(handleDeleteFile(getFileData[0]?._id))
-    }
-  })
 
-  const deleteAllFiles = () =>{
-    const getFileData = RawFileData?.map(value => value?._id)
-    getFileData?.length !== 0 ? dispatch(handleBulkFileDelete(getFileData)) : 
-    setAlertMsg("Nothing to Delete")
+  const handleCheckboxChange = (whichDelete, value) => {
+    if (whichDelete === 'select') {
+      // Get the array of IDs based on the `value`
+      let getFileId = RawFileData?.filter(item => item?.name === value)?.map(item => item._id);
+  
+      // Ensure getFileId is a flat array (shouldn't be nested if map is used correctly)
+      getFileId = getFileId ?? [];
+  
+      // Update the state based on whether IDs are already selected
+      setDeletFiles(prevState => {
+        if (getFileId.length === 0) return prevState; // Handle case where no IDs are found
+  
+        // Flatten previous state and current getFileId
+        const flatState = prevState.flat();
+        const flatGetFileId = getFileId.flat();
+  
+        // If IDs are already selected, remove them from state
+        if (flatGetFileId.every(id => flatState.includes(id))) {
+          return flatState.filter(id => !flatGetFileId.includes(id));
+        } else {
+          // If IDs are not selected, add them to the state
+          return [...new Set([...flatState, ...flatGetFileId])]; // Ensure unique values
+        }
+      });
+    } else {
+      // Handle other case
+      const getFileData = RawFileData?.map(item => item?._id);
+      setDeletFiles(getFileData ?? []);
+    }
+  };
+  
+
+  const deleteSelectedFile = () =>{
+    if(deleteFiles?.length !== 0) {
+      const getFileId = RawFileData?.filter(value => deleteFiles?.includes(value?.name) )?.map(value => value._id)
+      dispatch(handleDeleteFile(getFileId))
+    } else {
+      setAlertMsg("Nothing to Delete")
     setShowAlert(true)
     setTimeout(()=>{
       setShowAlert(false)
       setAlertMsg("")
       }, 5000)
+    }
   }
+
+
+const showPopUp = () =>{
+  if(deleteFiles?.length !== 0) {
+    document.getElementById('deleteModal').classList.add('show')
+  } else { 
+      setAlertMsg("Nothing to Delete"),
+        setShowAlert(true),
+        setTimeout(()=>{
+        setShowAlert(false)
+        setAlertMsg("")
+      }, 5000)
+  }
+}
+
+  useEffect(()=>{
+    setDeletFiles([])
+  }, [RawFileData])
 
   useEffect(()=>{
     setBreakDownFIleName(RawFileData?.map(({ name }) => name));
@@ -69,51 +111,46 @@ const DeleteData = () => {
   return (
     <>
         <Header />
-
         <div className="container my-5" >
       <div className="row">
         <div className="col-md-12">
           <div className="card">
-            <div className="card-header">
+            <div className="card-header d-flex justify-content-between align-items-center">
               <h3>Delete Data By List</h3>
+              <button type='button' onClick={()=>{handleCheckboxChange('bulk'), showPopUp()}} className='btn btn-danger '> <i class="fa-solid fa-trash-can"></i> Bulk Delete</button>
             </div>
-            <form onSubmit={deleteFileForm.handleSubmit}>
             <button ref={resetForm} style={{visibility : "hidden"}} type='reset'></button>
             <div className="card-body">
-                <div className="bank-sec mb-3">
-                  <div>
-                  <select 
-                  name="file"
-                  aria-controls="table-style-hover"
-                  className={'form-select form-control form-select-md '+(deleteFileForm.errors.file ? 'is-invalid' : '')}
-                  id="dt-length-3"
-                  onChange={deleteFileForm.handleChange}
-                  >
-                    <option>Select List</option>
-                    {
-                      breakDownFIleName?.map(value=>(
-                        <option key={value}>{value}</option>
-                      ))
-                    }
-                  </select>
-                  {
-                    deleteFileForm.errors.file ? <small className='text-danger'>{deleteFileForm.errors.file}</small> : null
-                  }
-                  </div>
-                  <button type='submit' className='btn btn-danger btn-md'>Delete</button>
-                </div>
                 {
                   showAlert ? <div className="alert alert-success text-success">{alertMsg}</div> : null
                 }
+                <div className='my-3 dt-responsive table-responsive'>
+                  <table id="table-style-hover"
+                          className="table table-striped my-3 table-hover table-bordered nowrap dataTable"
+                          aria-describedby="table-style-hover_info">
+                            <thead>
+                              <tr>
+                                <th className='d-flex align-items-center justify-content-between'>File Name <button type='button' onClick={()=>{showPopUp()}} className='btn btn-danger btn-md'>Delete</button></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {
+                              breakDownFIleName?.map(value=>(
+                                <tr key={value}>
+                                  <td className='d-flex justify-content-between align-items-center'><h5>{value}</h5> <input className='custom-checkbox' onChange={()=>{handleCheckboxChange('select', value)}} type='checkbox'/></td>
+                                </tr>
+                              ))
+                            }
+                            </tbody>
+                  </table>
+                </div>
             </div>
-            <div className="card-footer text-right">
-              <button type='button' onClick={deleteAllFiles} className='btn btn-danger '> <i class="fa-solid fa-trash-can"></i> Bulk Delete</button>
-            </div>
-            </form>
           </div>
         </div>
       </div>
     </div>
+
+    <DeleteDataModal props={deleteFiles} />
     </>
   )
 }

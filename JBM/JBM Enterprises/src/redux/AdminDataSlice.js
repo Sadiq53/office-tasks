@@ -34,7 +34,7 @@ const handleAddMemberData = createAsyncThunk('handleAddMemberData', async(formda
 });
 
 const handleDeleteFile = createAsyncThunk('handleDeleteFile', async(formData)=>{
-    const response = await axios.delete(`${API_URL}/data/${formData}`);
+    const response = await axios.delete(`${API_URL}/data`, { data : { IDs : formData } });
     if(response.data.status === 200) {
         return formData;
     } else {
@@ -63,15 +63,6 @@ const handleManageTags = createAsyncThunk('handleManageTags', async(formData) =>
 const handleGetAllData = createAsyncThunk('handleGetAllData', async() =>{
     const response = await axios.get(`${API_URL}/member`)
     return response.data || [];
-});
-
-const handleBulkFileDelete = createAsyncThunk('handleBulkFileDelete', async(formData) => {
-    const response = await axios.post(`${API_URL}/data/bulk-delete`, formData);
-    if(response.data.status === 200) {
-        return formData
-    } else { 
-        return
-    }
 });
 
 const handleAddBankData = createAsyncThunk('handleAddBankData', async(formData)=>{
@@ -195,15 +186,7 @@ const AdminDataSlice = createSlice({
         });
         builder.addCase(handleDeleteFile.fulfilled, (state, action)=>{
             if(action?.payload) {
-                state.file = state.file?.filter(value => value._id !== action?.payload)
-                state.isFullfilled = true;
-            } else {
-                state.isError = true;
-            }
-        });
-        builder.addCase(handleBulkFileDelete.fulfilled, (state, action)=>{
-            if(action?.payload) {
-                state.file = [];
+                state.file = state.file?.filter(value => !action?.payload?.includes(value?._id))
                 state.isFullfilled = true;
             } else {
                 state.isError = true;
@@ -213,5 +196,5 @@ const AdminDataSlice = createSlice({
 })
 
 export default AdminDataSlice.reducer;
-export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember, handleDeleteFile, handleDeleteBank, handleBulkFileDelete};
+export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember, handleDeleteFile, handleDeleteBank};
 export const {resetState} = AdminDataSlice.actions

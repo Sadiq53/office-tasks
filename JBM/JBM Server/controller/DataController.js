@@ -145,16 +145,37 @@ route.post("/", upload.any(), async (req, res) => {
   }
 });
 
-route.post('/bulk-delete', async (req, res) => {
-  const fileIds = req.body; // Assuming file IDs are passed in the request body as an array
+route.get('/', async(req, res) => {
+  let allFileData = await dataModel.find();
+  const rawFileData = allFileData?.map((value) => {
+      const getFileData = readXLSXFile(value.file.path);
+      return {
+          _id : value._id, 
+          name : value.file.name,
+          path : value.file.path,
+          uploaddate : value.uploaddate,
+          formatdate : value.formatdate,
+          newname : value.file.newname,
+          bank_name : value.bank,
+          data : getFileData
+      }
+  })
+  res.send({ fileData : rawFileData })
+});
 
+route.put('/', async(req, res) => {});
+
+// DELETE route to remove file and its database record
+route.delete('/', async (req, res) => {
+  const {IDs} = req.body;
+  
   try {
     // Initialize arrays to track success and errors
     const errors = [];
     const deletedIds = [];
 
     // Loop through each file ID
-    for (const fileId of fileIds) {
+    for (const fileId of IDs) {
       try {
         // Find the file record by ID
         const findFile = await dataModel.findOne({ _id: fileId });
@@ -195,58 +216,6 @@ route.post('/bulk-delete', async (req, res) => {
   } catch (error) {
     console.error('Error deleting files:', error);
     res.status(500).send({ status: 500, message: 'Internal server error' });
-  }
-});
-
-route.get('/', async(req, res) => {
-  let allFileData = await dataModel.find();
-  const rawFileData = allFileData?.map((value) => {
-      const getFileData = readXLSXFile(value.file.path);
-      return {
-          _id : value._id, 
-          name : value.file.name,
-          path : value.file.path,
-          uploaddate : value.uploaddate,
-          formatdate : value.formatdate,
-          newname : value.file.newname,
-          bank_name : value.bank,
-          data : getFileData
-      }
-  })
-  res.send({ fileData : rawFileData })
-});
-
-route.put('/', async(req, res) => {});
-
-// DELETE route to remove file and its database record
-route.delete('/:id', async (req, res) => {
-  const fileId = req.params.id;
-  
-  try {
-    // Find the file record by ID
-    const findFile = await dataModel.findOne({ _id: fileId });
-    if (!findFile) {
-      return res.status(404).json({ message: 'File not found' });
-    }
-
-    const filePath = findFile.file.path;
-
-    // Resolve the absolute path for security
-    const absoluteFilePath = path.resolve(filePath);
-
-    // Delete the file using fs.promises.unlink
-    await fs.unlink(absoluteFilePath, (err) => {
-      console.log(err)
-    });
-
-    // Delete the file record from the database
-    await dataModel.deleteOne({ _id: fileId });
-
-    res.send({ status: 200 });
-
-  } catch (error) {
-    console.error('Error deleting file:', error);
-    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
