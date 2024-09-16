@@ -31568,7 +31568,7 @@ div.dataTables_wrapper div.dt-row {
     margin: 0;
   }
   .pc-sidebar {
-    position: absolute !important;
+    position: fixed !important;
 }
   .pc-header .header-wrapper{
     flex-direction: column;
@@ -31590,8 +31590,46 @@ div.dataTables_wrapper div.dt-row {
     top: 0;
 }
 .width-6 {
-  width: 30%;
+  width: 30% !important;
 }
+}
+
+@media screen and (min-width : 768px) and (max-width : 991px) {
+  .pc-header {
+    position: relative !important;
+    /* position: absolute !important; */
+    top: 0;
+  }
+  .pc-sidebar {
+    position: absolute !important;
+  }
+  .width-6 {
+    width: 32% !important;
+  }
+}
+.width-6 {
+  width: 6% ;
+}
+
+/* Desktop view: default hover functionality */
+.pc-item.pc-hasmenu:hover .pc-submenu {
+  display: block; /* Submenu shows on hover */
+}
+
+/* Mobile view: hide submenu by default */
+@media (max-width: 768px) {
+  .pc-submenu {
+    display: none;
+  }
+
+  /* Open submenu on click */
+  .pc-submenu.open {
+    display: block;
+  }
+}
+
+.pc-sidebar.mob-sidebar-active{
+  overflow-y: scroll;
 }
 
 /**  =====================
