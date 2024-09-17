@@ -29,26 +29,63 @@ function readXLSXFile(filePath) {
   }
   
 
-route.get('/', async(req, res)=>{
-    const member = await memberData.find();
-    const bank = await bankData.find();
-    const manageData = await manageTagsData.find();
-    let allFileData = await dataModel.find();
-    const rawFileData = allFileData?.map((value) => {
-        const getFileData = readXLSXFile(value.file.path);
-        return {
-            _id : value._id, 
-            name : value.file.name,
-            path : value.file.path,
-            uploaddate : value.uploaddate,
-            formatdate : value.formatdate,
-            newname : value.file.newname,
-            bank_name : value.bank,
-            data : getFileData
-        }
-    })
-    res.send({ status : 200, memberData : member, bankData : bank, manageTags : manageData, fileData : rawFileData })
+const fs = require('fs'); // Import the file system module
+
+route.get('/', async (req, res) => {
+    try {
+        const member = await memberData.find();
+        const bank = await bankData.find();
+        const manageData = await manageTagsData.find();
+        let allFileData = await dataModel.find();
+
+        // Map over allFileData and check if the file path exists before processing it
+        const rawFileData = allFileData?.map((value) => {
+            // Check if the file exists at the path
+            if (fs.existsSync(value.file.path)) {
+                // If the file exists, read the data from the file
+                const getFileData = readXLSXFile(value.file.path);
+                return {
+                    _id: value._id,
+                    name: value.file.name,
+                    path: value.file.path,
+                    uploaddate: value.uploaddate,
+                    formatdate: value.formatdate,
+                    newname: value.file.newname,
+                    bank_name: value.bank,
+                    data: getFileData
+                };
+            } else {
+                // If the file does not exist, return an appropriate response or log
+                console.error(`File not found at path: ${value.file.path}`);
+                return {
+                    _id: value._id,
+                    name: value.file.name,
+                    path: value.file.path,
+                    uploaddate: value.uploaddate,
+                    formatdate: value.formatdate,
+                    newname: value.file.newname,
+                    bank_name: value.bank,
+                    data: null, // Set data as null if the file doesn't exist
+                    error: 'File not found'
+                };
+            }
+        });
+
+        // Send the response with status and data
+        res.send({
+            status: 200,
+            memberData: member,
+            bankData: bank,
+            manageTags: manageData,
+            fileData: rawFileData
+        });
+    } catch (error) {
+        // Handle errors
+        console.error('Error fetching data:', error);
+        res.status(500).send({ status: 500, error: 'Internal Server Error' });
+    }
 });
+
 
 route.post('/', async(req, res)=>{
     try{

@@ -31617,7 +31617,7 @@ div.dataTables_wrapper div.dt-row {
 }
 
 /* Mobile view: hide submenu by default */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .pc-submenu {
     display: none;
   }
