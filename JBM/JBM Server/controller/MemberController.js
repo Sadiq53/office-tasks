@@ -36,40 +36,40 @@ route.get('/', async (req, res) => {
         const member = await memberData.find();
         const bank = await bankData.find();
         const manageData = await manageTagsData.find();
-        let allFileData = await dataModel.find();
+        // let allFileData = await dataModel.find();
 
-        // Map over allFileData and check if the file path exists before processing it
-        const rawFileData = allFileData?.map((value) => {
-            // Check if the file exists at the path
-            if (fs.existsSync(value.file.path)) {
-                // If the file exists, read the data from the file
-                const getFileData = readXLSXFile(value.file.path);
-                return {
-                    _id: value._id,
-                    name: value.file.name,
-                    path: value.file.path,
-                    uploaddate: value.uploaddate,
-                    formatdate: value.formatdate,
-                    newname: value.file.newname,
-                    bank_name: value.bank,
-                    data: getFileData
-                };
-            } else {
-                // If the file does not exist, return an appropriate response or log
-                console.error(`File not found at path: ${value.file.path}`);
-                return {
-                    _id: value._id,
-                    name: value.file.name,
-                    path: value.file.path,
-                    uploaddate: value.uploaddate,
-                    formatdate: value.formatdate,
-                    newname: value.file.newname,
-                    bank_name: value.bank,
-                    data: null, // Set data as null if the file doesn't exist
-                    error: 'File not found'
-                };
-            }
-        });
+        // // Map over allFileData and check if the file path exists before processing it
+        // const rawFileData = allFileData?.map((value) => {
+        //     // Check if the file exists at the path
+        //     if (fs.existsSync(value.file.path)) {
+        //         // If the file exists, read the data from the file
+        //         const getFileData = readXLSXFile(value.file.path);
+        //         return {
+        //             _id: value._id,
+        //             name: value.file.name,
+        //             path: value.file.path,
+        //             uploaddate: value.uploaddate,
+        //             formatdate: value.formatdate,
+        //             filekey: value.file.filekey,
+        //             bank_name: value.bank,
+        //             data: getFileData
+        //         };
+        //     } else {
+        //         // If the file does not exist, return an appropriate response or log
+        //         console.error(`File not found at path: ${value.file.path}`);
+        //         return {
+        //             _id: value._id,
+        //             name: value.file.name,
+        //             path: value.file.path,
+        //             uploaddate: value.uploaddate,
+        //             formatdate: value.formatdate,
+        //             filekey: value.file.filekey,
+        //             bank_name: value.bank,
+        //             data: null, // Set data as null if the file doesn't exist
+        //             error: 'File not found'
+        //         };
+        //     }
+        // });
 
         // Send the response with status and data
         res.send({
@@ -77,7 +77,7 @@ route.get('/', async (req, res) => {
             memberData: member,
             bankData: bank,
             manageTags: manageData,
-            fileData: rawFileData
+            // fileData: rawFileData
         });
     } catch (error) {
         // Handle errors

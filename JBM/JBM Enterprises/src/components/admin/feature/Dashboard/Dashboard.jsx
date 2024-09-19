@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../shared/Header/Header'
 import { NavLink } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -8,6 +8,42 @@ const Dashboard = () => {
   const memberData = useSelector(state => state.AdminDataSlice.member);
   const bankData = useSelector(state => state.AdminDataSlice.bank);
   const fileData = useSelector(state => state.AdminDataSlice.file);
+  const [checkRelease, setCheckRelease] = useState([])
+  const [checkHold, setCheckHold] = useState([])
+  const [checkYard, setCheckYard] = useState([])
+
+  useEffect(()=>{
+    let holdValues = []
+    fileData?.map(file => {
+      file.data?.filter(value => {
+        value.ACTION === 'Hold' ?
+        holdValues.push(value)  : null
+      })
+    })
+    setCheckHold(holdValues)
+  }, [fileData])
+
+  useEffect(()=>{
+    let releaseValue = []
+    fileData?.map(file => {
+      file.data?.filter(value => {
+        value.ACTION === 'Release' ?
+        releaseValue.push(value)  : null
+      })
+    })
+    setCheckRelease(releaseValue)
+  }, [fileData])
+
+  useEffect(()=>{
+    let yardValues = []
+    fileData?.map(file => {
+      file.data?.filter(value => {
+        value.ACTION === 'In Yard' ?
+        yardValues.push(value)  : null
+      })
+    })
+    setCheckYard(yardValues)
+  }, [fileData])
 
   return (
     <>
@@ -113,11 +149,11 @@ const Dashboard = () => {
   {/* [ Row 1 ] end */}
 
   {/* [ Row 2 ] start */}
-  {/* <div className="col-sm-6 col-xl-4">
-    <NavLink to='/members-list'>
+  <div className="col-sm-6 col-xl-4">
+    <NavLink to={`/action/${'Hold'}`}>
     <div className="card statistics-card-1">
       <div className="card-header d-flex align-items-center justify-content-between py-3">
-        <h5>Total Members</h5>
+        <h5>Total Holds</h5>
       </div>
       <div className="card-body">
         <img
@@ -127,16 +163,14 @@ const Dashboard = () => {
         />
         <div className="d-flex align-items-center">
           <h3 className="f-w-300 d-flex align-items-center m-b-0">
-            237 <small className="text-muted">/400</small>
+            {checkHold ? checkHold?.length : 0}<small className="text-muted">&nbsp; Total Count</small>
           </h3>
-          <span className="badge bg-light-success ms-2">36%</span>
         </div>
-        <p className="text-muted mb-2 text-sm mt-3">Delivery Orders</p>
         <div className="progress" style={{ height: 7 }}>
           <div
             className="progress-bar bg-brand-color-2"
             role="progressbar"
-            style={{ width: "75%" }}
+            style={{ width: "100%" }}
             aria-valuenow={75}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -147,10 +181,10 @@ const Dashboard = () => {
     </NavLink>
   </div>
   <div className="col-sm-6 col-xl-4">
-    <NavLink to='/bank-list'>
+    <NavLink to={`/action/${'Release'}`}>
     <div className="card statistics-card-1">
       <div className="card-header d-flex align-items-center justify-content-between py-3">
-        <h5>Banks</h5>
+        <h5>Releases</h5>
       </div>
       <div className="card-body">
         <img
@@ -160,16 +194,14 @@ const Dashboard = () => {
         />
         <div className="d-flex align-items-center">
           <h3 className="f-w-300 d-flex align-items-center m-b-0">
-            100 <small className="text-muted">/500</small>
+            {checkRelease ? checkRelease?.length : 0}<small className="text-muted">&nbsp; Total Count</small>
           </h3>
-          <span className="badge bg-light-primary ms-2">20%</span>
         </div>
-        <p className="text-muted mb-2 text-sm mt-3">Delivery Orders</p>
         <div className="progress" style={{ height: 7 }}>
           <div
             className="progress-bar bg-brand-color-1"
             role="progressbar"
-            style={{ width: "75%" }}
+            style={{ width: "100%" }}
             aria-valuenow={75}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -180,28 +212,10 @@ const Dashboard = () => {
     </NavLink>
   </div>
   <div className="col-sm-6 col-xl-4">
+    <NavLink to={`/action/${'In Yard'}`}>
     <div className="card statistics-card-1">
       <div className="card-header d-flex align-items-center justify-content-between py-3">
-        <h5>Return Orders</h5>
-        <div className="dropdown">
-          <a
-            className="avtar avtar-xs btn-link-secondary dropdown-toggle arrow-none"
-            href="#"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i className="material-icons-two-tone f-18">more_vert</i>
-          </a>
-          <div className="dropdown-menu dropdown-menu-end">
-            <a className="dropdown-item" href="#">
-              View
-            </a>
-            <a className="dropdown-item" href="#">
-              Edit
-            </a>
-          </div>
-        </div>
+        <h5>In Yards</h5>
       </div>
       <div className="card-body">
         <img
@@ -211,16 +225,14 @@ const Dashboard = () => {
         />
         <div className="d-flex align-items-center">
           <h3 className="f-w-300 d-flex align-items-center m-b-0">
-            50 <small className="text-muted">/400</small>
+            {checkYard ? checkYard?.length : 0}<small className="text-muted"> &nbsp; Total Count</small>
           </h3>
-          <span className="badge bg-light-danger ms-2">10%</span>
         </div>
-        <p className="text-muted mb-2 text-sm mt-3">Return Orders</p>
         <div className="progress" style={{ height: 7 }}>
           <div
             className="progress-bar bg-brand-color-3"
             role="progressbar"
-            style={{ width: "75%" }}
+            style={{ width: "100%" }}
             aria-valuenow={75}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -228,7 +240,8 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-  </div> */}
+    </NavLink>
+  </div>
   {/* [ Row 2 ] end */}
   
 </div>

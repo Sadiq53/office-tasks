@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Outlet } from 'react-router-dom'
-import { handleGetAllData } from '../redux/AdminDataSlice';
+import { handleGetAllData, handleGetAllFileData } from '../redux/AdminDataSlice';
 
 const AdminModule = () => {
 
@@ -9,6 +9,10 @@ const AdminModule = () => {
     const isProcessing = useSelector(state => state.AdminDataSlice.isDataProcessing)
     useEffect(()=>{
         dispatch(handleGetAllData())
+    }, [])
+
+    useEffect(()=>{
+        dispatch(handleGetAllFileData());
     }, [])
 
     useEffect(()=>{

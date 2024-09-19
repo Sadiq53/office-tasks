@@ -36,10 +36,8 @@ const ModuleScreen = () => {
 
   return (
     <AuthProvider>
-      <NavigationContainer>
-        {/* {isLoggedIn ? <AppNavigator /> : <AuthNavigator />} */}
-        <AppNavigator />
-      </NavigationContainer>
+        {isLoggedIn ? <AppNavigator /> : <AuthNavigator />}
+        {/* <AppNavigator />/ */}
     </AuthProvider>
   );
 };

@@ -7777,6 +7777,9 @@ textarea.is-invalid.dataTable-input {
 [data-pc-direction=ltr] .overflow-hidden {
   overflow: hidden !important;
 }
+.overflow-hidden {
+  overflow: hidden !important;
+}
 [data-pc-direction=ltr] .overflow-visible {
   overflow: visible !important;
 }
@@ -31643,6 +31646,60 @@ div.dataTables_wrapper div.dt-row {
 .font-size-18{
   font-size: 18px !important;
 }
+
+
+.actionSet.loading .spinner {
+  content: '';
+  position: absolute;
+  top: 32%;
+  right: 20%;
+  left: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid #000;
+  /* border-top-left-radius: 0px; */
+  /* border-top: 0px; */
+  /* border-top: none; */
+  /* border-right: none; */
+  border-top-color: #fff;
+  transform: translate(50%, -50%);
+  margin: 0 auto;
+  animation: spinset 3s linear infinite;
+  z-index: 2;
+}
+.actionSet{
+  position: relative;
+}
+.actionSet.loading select{
+filter: blur(1px);
+opacity: .7;
+}
+@keyframes spinset{
+  0%{
+    transform: rotate(0deg);
+  }
+  100%{
+    transform: rotate(360deg);
+  }
+}
+
+.table-container-suds {
+  overflow-x: auto;
+  cursor: grab;
+  white-space: nowrap;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  padding: 10px;
+}
+
+.table-container-suds:active {
+  cursor: grabbing;
+}
+
 
 /**  =====================
   36. Customizer css end

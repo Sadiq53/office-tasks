@@ -7,6 +7,7 @@ import AddData from '../../components/admin/feature/Manage-Data/AddData'
 import DataList from '../../components/admin/feature/Manage-Data/DataList'
 import ManageDashTags from '../../components/admin/feature/Manage-Data/ManageDashTags'
 import DeleteData from '../../components/admin/feature/Manage-Data/DeleteData'
+import ActionList from '../../components/admin/feature/Manage-Data/ActionList'
 // import Error404 from '../../components/admin/feature/404/Error404'
 // import Demo from '../../components/admin/feature/Demo'
 
@@ -48,6 +49,10 @@ import DeleteData from '../../components/admin/feature/Manage-Data/DeleteData'
         {
             path : 'delete-data',
             element : <DeleteData />
+        },
+        {
+            path : 'action/:action',
+            element : <ActionList />
         },
     ]
 

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Header from '../../shared/Header/Header';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleAddAction, resetState } from '../../../../redux/AdminDataSlice';
 
 const DataList = () => {
   const [onlyFileData, setOnlyFileData] = useState([]);
@@ -13,8 +14,40 @@ const DataList = () => {
   const [changeFileOnDate, setChangeFileOnDate] = useState("");
   const RawFileData = useSelector(state => state.AdminDataSlice?.file);
   const bankData = useSelector(state => state.AdminDataSlice?.bank);
+  const isProcessing = useSelector(state => state.AdminDataSlice?.isProcessing);
+  const isFullfilled = useSelector(state => state.AdminDataSlice?.isFullfilled);
   const [breakDownFIleData, setBreakDownFIleData] = useState([]);
+  const [actionValue, setActionValue] = useState('');
+  const dispatch = useDispatch();
+  const tableContainerRef = useRef(null); // Use useRef to reference the container
+  const [isDown, setIsDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
+  //--------------------Table Scroll-------------------------------
+  
+  const handleMouseDown = (e) => {
+    setIsDown(true);
+    setStartX(e.pageX - tableContainerRef.current.offsetLeft);
+    setScrollLeft(tableContainerRef.current.scrollLeft);
+  };
+  
+  const handleMouseLeaveOrUp = () => {
+    setIsDown(false);
+  };
+  
+  const handleMouseMove = (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - tableContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 3; // Adjust scroll speed here
+    tableContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+  
+  //--------------------Table Scroll-------------------------------
+
+  //--------------------Upadte data by Date-------------------------------
+  
   // Extract file names
   const breakDownFIleName = RawFileData?.map(({ name }) => name);
 
@@ -35,10 +68,15 @@ const DataList = () => {
     return grouped;
   }
   const groupedDates = groupByMonthYear(getAllDates);
+  
+  //--------------------Upadte data by Date-------------------------------
 
+  //--------------------Upadte data by Filters-------------------------------
+  
   // Update breakDownFIleData based on filters
   useEffect(() => {
-    let filteredData = RawFileData;
+    if(!RawFileData?.error) {
+      let filteredData = RawFileData;
 
     if (changeFileOnName && changeFileOnName !== 'Select List') {
       filteredData = filteredData.filter(value => value?.name === changeFileOnName);
@@ -58,11 +96,18 @@ const DataList = () => {
         );
       });
     }
-
+    
     const data = filteredData.map(({ data }) => data).flat();
     setBreakDownFIleData(data);
+    } else {
+      
+    }
   }, [RawFileData, changeFileOnName, changeFileOnBank, changeFileOnDate]);
+  
+  //--------------------Upadte data by Filters-------------------------------
 
+  //--------------------Search by Filters-------------------------------
+  
   // Search function to filter results based on a query
   const findMember = (query) => {
     if (query) {
@@ -83,7 +128,11 @@ const DataList = () => {
     setSearchQuery(query);
     findMember(query);
   };
+  
+  //--------------------Search by Filters-------------------------------
 
+  //--------------------Pagination-------------------------------
+  
   // Handle pagination logic
   useEffect(() => {
     if (dataPerView > 0 && breakDownFIleData.length > 0) {
@@ -98,6 +147,35 @@ const DataList = () => {
       setPaginationLength([1]);
     }
   }, [dataPerView, breakDownFIleData, currentIndex]);
+  
+  //--------------------Pagination-------------------------------
+  
+  //--------------------Action Loader-------------------------------
+  
+    const addAction = (action, value, fileName) => {
+      const obj = {
+        actionStatus : action,
+        agreementNumber : value,
+        fileName : fileName,
+      }
+      dispatch(handleAddAction(obj));
+    }
+  
+  const actionLoader = (ID) => {
+    setActionValue(ID)
+    document.getElementById(ID).classList.add('loading')
+  }
+
+  useEffect(()=>{
+    if(actionValue) {
+      if(isFullfilled){
+        document.getElementById(actionValue).classList.remove('loading')
+        dispatch(resetState())
+      }
+    }
+  }, [isFullfilled])
+  
+  //--------------------Action Loader-------------------------------
 
   return (
     <>
@@ -111,7 +189,7 @@ const DataList = () => {
                 <h3>Data List</h3>
               </div>
               <div className="card-body">
-                <div className="dt-responsive table-responsive">
+                <div className="dt-responsive table-responsive overflow-hidden ">
                   <div id="table-style-hover_wrapper" className="dt-container dt-bootstrap5">
                     <div className="row mt-2 gap-15 justify-content-evenly my-3">
                       <div className="col-md-3 me-auto">
@@ -158,7 +236,7 @@ const DataList = () => {
                       </div>
                     </div>
 
-                    <div className="row mt-2 justify-content-between">
+                    <div className="row mt-2 justify-content-between ">
                       <div className="col-md-auto me-auto">
                         <div className="dt-length">
                           <select
@@ -192,8 +270,14 @@ const DataList = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="row mt-2 justify-content-md-center">
-                      <div className="col-12">
+                    <div className="row mt-2 justify-content-md-center ">
+                      <div className="col-12 table-container-suds my-3"
+                      ref={tableContainerRef}
+                      onMouseDown={handleMouseDown}
+                      onMouseLeave={handleMouseLeaveOrUp}
+                      onMouseUp={handleMouseLeaveOrUp}
+                      onMouseMove={handleMouseMove}
+                      >
                         <table
                           id="table-style-hover"
                           className="table table-striped my-3 table-hover table-bordered nowrap dataTable"
@@ -214,6 +298,7 @@ const DataList = () => {
                               <th>Assets Des</th>
                               <th>Arm Name</th>
                               <th>Arm Phone</th>
+                              <th>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -235,6 +320,20 @@ const DataList = () => {
                                   <td className="sorting_1">{value.ASSETSDESC}</td>
                                   <td className="sorting_1">{ARMNAME}</td>
                                   <td className="sorting_1">{ARMPHONE}</td>
+                                  <td className="sorting_1">
+                                    <div id={value.AGREEMENTNO} className='actionSet'>
+                                      <div className='spinner'></div>
+                                    <select value={value.ACTION || 'empty'} 
+                                    onChange={(event)=>{addAction(event.target.value, value.AGREEMENTNO, value.FILENAME), 
+                                      actionLoader(value.AGREEMENTNO)}} 
+                                    name="" className='form-control' >
+                                      <option value='empty'>select</option>
+                                      <option value='Hold'>⏸ Hold</option>
+                                      <option value='Release'>📤 Release</option>
+                                      <option value='In Yard'>📥 In Yard</option>
+                                    </select>
+                                    </div>
+                                  </td>
                                 </tr>
                               )
                             })}
@@ -250,7 +349,7 @@ const DataList = () => {
                           id="table-style-hover_info"
                           role="status"
                         >
-                          {`showing 1 to ${onlyFileData.length} of ${breakDownFIleData.flat().length} entries`}
+                          {`showing 1 to ${onlyFileData?.length} of ${breakDownFIleData?.flat()?.length} entries`}
                         </div>
                       </div>
                       <div className="col-md-auto ms-auto">

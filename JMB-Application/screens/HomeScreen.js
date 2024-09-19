@@ -1,6 +1,6 @@
 // screens/HomeScreen.js
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, FlatList, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, ScrollView, FlatList, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,33 +9,40 @@ import logo from '../assets/images/logo.png';
 export default function HomeScreen() {
   const { logout } = React.useContext(AuthContext);
   const navigation = useNavigation();
-  const [data, setData] = useState([])
+  const { login } = useContext(AuthContext);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
 
   const handleLogout = () => {
     logout();
-    AsyncStorage.removeItem('UserToken')
+    AsyncStorage.removeItem('UserToken');
     navigation.replace('Login');
   };
 
-  const getData = async() =>{
-    const response = await fetch('http://localhost:8080/admin/data', {
-      method: "GET"
-  });
-  if (!response.ok) {
-      throw new Error('Failed to fetch data');
-  }
-  const data = await response.json();
-  let filteredData = data?.fileData;
-  const files = filteredData.map(({ data }) => data).flat();
-  setData(files)
-  }
-
-  useEffect(()=>{
-    getData()
-  }, [])
+  const handleLogin = async () => {
+    setLoading(true); // Start loading
+    setError(''); // Reset error message
+    try {
+      await login(username, password); // Attempt login with username and password
+      navigation.replace('Home'); // On successful login, navigate to Home
+    } catch (e) {
+      setError('Login failed. Please try again.'); // Set error message on failure
+      console.error('Login error:', e);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
   return (
     <>
+     <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : null} // Ensures keyboard avoidance for iOS and Android
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <View style={styles.indexGrid}>
     <Image source={logo} style={styles.image} />
     </View>
@@ -45,26 +52,23 @@ export default function HomeScreen() {
       </View>
       <View style={styles.formLayout}>
         <Text style={styles.formText}>Email</Text>
-        <TextInput placeholder='Enter email id' placeholderTextColor="gray" style={styles.formInput} />
+        <TextInput placeholder='Enter email id' value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none" placeholderTextColor="gray" style={styles.formInput} />
+
         <Text style={styles.formText}>Password</Text>
-        <TextInput placeholder='Enter password' placeholderTextColor="gray" style={styles.formInput} />
-        {/* <Button onPress={navigation.navigate('/profile')} title='Go' /> */}
+        <TextInput placeholder='Enter password'  value={password}
+        onChangeText={setPassword}
+        secureTextEntry placeholderTextColor="gray" style={styles.formInput} />
       </View>
      
-      <TouchableOpacity style={styles.formButton}>
+      <TouchableOpacity onPress={handleLogin} style={styles.formButton}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
      
     </View>
-    {/* <FlatList
-      data={data}
-      keyExtractor={item => item.id}
-      renderItem={({ item }) => (
-        <View style={{flex : "1"}}>
-          <Text style={{fontSize : "40"}}>{item._id}</Text>
-        </View>
-      )}
-    /> */}
+    </ScrollView>
+    </KeyboardAvoidingView>
     </>
   );
 }
@@ -97,7 +101,7 @@ const styles = StyleSheet.create({
   },
   bottomLayout : {
     backgroundColor : "red",
-    flex : 1.5,
+    flex : 0.2,
     borderTopLeftRadius : 35,
     borderTopRightRadius : 35,
     paddingHorizontal : 20,

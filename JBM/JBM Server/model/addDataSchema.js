@@ -6,7 +6,7 @@ const addData = mongoose.Schema({
     bank : String,
     uploaddate : Date,
     formatdate : String,
-    file : {type : { name : String, newname : String, path : String }, default : {name : '', newname : '', path : '' }}
+    file : {type : { name : String, filekey : String, path : String }, default : {name : '', filekey : '', path : '' }}
 }, { collection : "add_data" });
 
 module.exports = mongoose.model("add_data", addData);

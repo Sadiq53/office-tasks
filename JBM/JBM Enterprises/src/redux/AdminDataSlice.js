@@ -33,6 +33,15 @@ const handleAddMemberData = createAsyncThunk('handleAddMemberData', async(formda
     }
 });
 
+const handleGetAllFileData = createAsyncThunk('handleGetAllFileData', async() => {
+    const response = await axios.get(`${API_URL}/data`)
+    if(response.data.status === 200) {
+        return response.data.filedata
+    } else {
+        return
+    }
+});
+
 const handleDeleteFile = createAsyncThunk('handleDeleteFile', async(formData)=>{
     const response = await axios.delete(`${API_URL}/data`, { data : { IDs : formData } });
     if(response.data.status === 200) {
@@ -93,6 +102,16 @@ const handleData = createAsyncThunk('handleData', async(formData) =>{
     }
 }); 
 
+const handleAddAction = createAsyncThunk('handleAddAction', async(formData)=>{
+    const response = await axios.put(`${API_URL}/data`, { data : { action : formData } })
+    console.log(response.data)
+    if(response.data.status === 200) {
+        return formData
+    } else { 
+        return
+    }
+});
+
 
 
 const initialState = {
@@ -144,10 +163,16 @@ const AdminDataSlice = createSlice({
             state.member = action.payload?.memberData;
             state.bank = action.payload?.bankData;
             state.manageTags = action.payload?.manageTags;
-            state.file = action.payload?.fileData
+            state.isDataProcessing = false;
+        });
+        builder.addCase(handleGetAllFileData.fulfilled, (state, action) =>{
+            state.file = action.payload;
             state.isDataProcessing = false;
         });
         builder.addCase(handleGetAllData.pending, (state, action) =>{
+            state.isDataProcessing = true
+        });
+        builder.addCase(handleGetAllFileData.pending, (state, action) =>{
             state.isDataProcessing = true
         });
         builder.addCase(handleAddBankData.fulfilled, (state, action)=>{
@@ -227,9 +252,39 @@ const AdminDataSlice = createSlice({
         builder.addCase(handleDeleteFile.pending, (state, action)=>{
             state.isProcessing = true;
         });
+        builder.addCase(handleAddAction.fulfilled, (state, action) => {
+            if (action?.payload) {
+                const { actionStatus, agreementNumber, fileName } = action.payload;
+        
+                // Update the state by mapping over the file array
+                state.file = state.file.map(file => {
+                    if (file.name === fileName) {
+                        // Update the data array within the matched file
+                        return {
+                            ...file,
+                            data: file.data.map(value => 
+                                value.AGREEMENTNO === agreementNumber
+                                    ? { ...value, ACTION: actionStatus } // Update ACTION property
+                                    : value // Return unchanged item
+                            )
+                        };
+                    }
+                    return file; // Return unchanged file if it doesn't match
+                });
+        
+                state.isFullfilled = true;
+                state.isProcessing = false;
+            } else {
+                state.isProcessing = false;
+                state.isError = true;
+            }
+        });
+        builder.addCase(handleAddAction.pending, (state, action) => {
+                state.isProcessing = true;
+        });
     }
 })
 
 export default AdminDataSlice.reducer;
-export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember, handleDeleteFile, handleDeleteBank};
+export  {handleAddMemberData, handleGetAllData, handleAddBankData, handleManageTags, handleData, handleDeleteMember, handleDeleteFile, handleDeleteBank, handleAddAction, handleGetAllFileData};
 export const {resetState} = AdminDataSlice.actions

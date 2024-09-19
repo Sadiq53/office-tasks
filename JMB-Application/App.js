@@ -5,6 +5,7 @@ import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
 import ModuleScreen from './screens/ModuleScreen';
 import UserDataSlice from './redux/UserDataSlice';
+import { NavigationContainer } from '@react-navigation/native';
 
 
 const rootReducer = combineReducers({UserDataSlice});
@@ -15,8 +16,10 @@ const store = configureStore({
 
 export default function App() {
   return (
+    <NavigationContainer>
     <Provider store={store}>
       <ModuleScreen />
     </Provider>
+    </NavigationContainer>
   );
 }

@@ -1,16 +1,21 @@
+const { v4: uuidv4 } = require('uuid');
 const route = require('express').Router();
-const dataModel = require('../model/addDataSchema')
+const dataModel = require('../model/addDataSchema');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const xlsx = require('xlsx');
 const csv = require('csv-parser');
 const generateFileName = require('randomstring');
-
-
+const { exec } = require('child_process');
+const multerS3 = require('multer-s3');
+const AWS = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+// const {readXLSXFile} = require('../assets/scripts/FileReader')
 
 // ---------------------------------File Reading-----------------------------------------
 
+// Function to read XLSX files
 function readXLSXFile(filePath) {
   const workbook = xlsx.readFile(filePath);
   const sheetName = workbook.SheetNames[0]; // Assuming we want the first sheet
@@ -20,6 +25,7 @@ function readXLSXFile(filePath) {
   return data; // Array of objects
 }
 
+// Function to read CSV files
 function readCSVFile(filePath) {
   return new Promise((resolve, reject) => {
     const results = [];
@@ -35,6 +41,18 @@ function readCSVFile(filePath) {
 
 // ---------------------------------File Reading-----------------------------------------
 
+//-------------------------File Saving------------------------------------
+
+// AWS SDK Configuration
+const s3 = new S3Client({
+  region: 'eu-north-1',
+  credentials: {
+    accessKeyId: 'AKIASFIXCTQJOP3YAAUY',
+    secretAccessKey: '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',
+  },
+});
+
+// Directory to store uploaded files temporarily
 const uploadDir = path.join(__dirname, "..", 'assets', 'uploads');
 
 // Create upload directory if it doesn't exist
@@ -43,44 +61,145 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Multer configuration for file storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir); 
-  },
-  filename: (req, file, cb) => {
+const storage = multerS3({
+  s3: s3,
+  bucket: 'jmb-enterprise-bucket',
+  acl: 'public-read',
+  key: (req, file, cb) => {
     // Generate a unique name for the file
-    const generatedName = generateFileName.generate(6);
-    const extension = path.extname(file.originalname); // Get the file extension
-    const newFileName = `${generatedName}${extension}`; // Combine generated name with file extension
-    cb(null, newFileName);
+    const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, fileName);
   }
 });
 
-const upload = multer({ storage: storage });
-
-// Function to read XLSX or CSV files
-function readXLSXFile(filePath) {
-  const workbook = xlsx.readFile(filePath);
-  const sheetName = workbook.SheetNames[0]; // Assuming we want the first sheet
-  const worksheet = workbook.Sheets[sheetName];
-  const data = xlsx.utils.sheet_to_json(worksheet); // Converts to JSON format
-
-  return data; // Array of objects
-}
+// Multer instance with limits and file type filter
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit to 10MB
+  fileFilter: (req, file, cb) => {
+    // Allow only .xlsx and .csv file types
+    const allowedTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'), false);
+    }
+  }
+});
 
 //-------------------------File Saving------------------------------------
+
+//-------------------To add the FILENAME and ACTION property in the file using python-----------------
+
+// Path to the Python script
+const scriptPath = path.join(__dirname, '..', 'assets', 'scripts', 'update_xlsx.py');
+
+// Function to run Python script
+function addPropertyUsingPython(filePath, filename) {
+  return new Promise((resolve, reject) => {
+    // Use double quotes around paths to handle spaces and special characters
+    const command = `python "${scriptPath}" "${filePath}" "${filename}"`;
+    
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing Python script: ${stderr}`);
+        return reject(`Error: ${stderr}`);
+      }
+      console.log(`Python script output: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+}
+
+//-------------------To add the FILENAME and ACTION property in the file using python-----------------
+
+//-------------------To Update the Action in the file using python-----------------
+
+// Function to run Python script
+function runPythonScript(filePath, agreementNumber, actionStatus) {
+  return new Promise((resolve, reject) => {
+    const scriptPath = path.join(__dirname, '..', 'assets', 'scripts', 'updateAction.py');
+    const command = `python "${scriptPath}" "${filePath}" "${agreementNumber}" "${actionStatus}"`;
+    
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        return reject(`Error: ${stderr}`);
+      }
+      resolve(stdout);
+    });
+  });
+}
+
+//-------------------To Update the Action in the file using python-----------------
+
+// Function to download file from S3
+async function downloadFileFromS3(fileKey) {
+  const params = {
+    Bucket: 'jmb-enterprise-bucket',
+    Key: fileKey
+  };
+  
+  const command = new GetObjectCommand(params);
+  try {
+    const data = await s3.send(command);
+    const fileStream = data.Body;
+    return fileStream;
+  } catch (error) {
+    throw new Error(`Error downloading file from S3: ${error.message}`);
+  }
+}
+
+// Function to delete file from S3
+async function deleteFileFromS3(fileKey) {
+  const params = {
+    Bucket: 'jmb-enterprise-bucket',
+    Key: fileKey
+  };
+  
+  const command = new DeleteObjectCommand(params);
+  try {
+    await s3.send(command);
+  } catch (error) {
+    throw new Error(`Error deleting file from S3: ${error.message}`);
+  }
+}
+
+// Function to upload the modified file back to S3 using putObject
+
+async function uploadFileToS3( fileKey, filePath) {
+  try {
+    const fileStream = fs.createReadStream(filePath);
+
+    // Define the parameters for the upload
+    const uploadParams = {
+      Bucket: 'jmb-enterprise-bucket',
+      Key: fileKey,
+      Body: fileStream,
+    };
+
+    // Upload file using PutObjectCommand
+    const data = await s3.send(new PutObjectCommand(uploadParams));
+    // console.log("File uploaded successfully:", data);
+    return data
+  } catch (err) {
+    console.error("Error uploading file:", err);
+  }
+}
+
 
 // -------------------------ROUTING STARTS----------------------------------------------------
 
 route.post("/", upload.any(), async (req, res) => {
   if (req.files && req.files.length > 0) {
     const { bank } = req.body;
-    const { path: filePath, originalname } = req.files[0]; // Destructuring to get the path and original name
-    const newFileName = req.files[0].filename; // Get the generated filename from Multer
+    const file = req.files[0];
+    const { originalname, key: fileKey, location: fileUrl } = file;
     const uploaddate = new Date();
 
-    // Creating the member created Date in Proper Format
-    const currentDate = uploaddate;
+    // Formatting the date
     const options = {
       hour: 'numeric',
       minute: 'numeric',
@@ -89,7 +208,7 @@ route.post("/", upload.any(), async (req, res) => {
       month: 'long',
       year: 'numeric'
     };
-    const formattedDate = currentDate.toLocaleString('en-US', options);
+    const formattedDate = uploaddate.toLocaleString('en-US', options);
 
     // Object to save in database
     const obj = {
@@ -97,9 +216,9 @@ route.post("/", upload.any(), async (req, res) => {
       uploaddate: uploaddate,
       formatdate: formattedDate,
       file: {
-        name: originalname, // Store original file name
-        newname: newFileName, // Store generated file name
-        path: filePath // Full path where file is stored
+        name: originalname,
+        filekey: fileKey,
+        path: fileUrl
       }
     };
 
@@ -108,32 +227,55 @@ route.post("/", upload.any(), async (req, res) => {
       const isDataExist = await dataModel.findOne({ 'file.name': originalname });
 
       if (!isDataExist) {
-        // Check if file already exists on the file system to avoid duplicate uploads
-        if (fs.existsSync(filePath)) {
-          // Save to database if not existing
-          await dataModel.create(obj);
-          
-          // Read the file data
-          const data = readXLSXFile(filePath);
+        // Download the file from S3
+        const fileStream = await downloadFileFromS3(fileKey);
 
-          // Send back the updated data
-          const getFileData = await dataModel.findOne({ 'file.name': originalname })
-          const updatedData = {
-            _id: getFileData?._id,
-            name: getFileData?.file?.name,
-            path: getFileData?.file?.path,
-            uploaddate: getFileData?.uploaddate,
-            formatdate: getFileData?.formatdate,
-            newname: getFileData?.file?.newname,
-            bank_name: getFileData?.bank,
-            data: data
+        // Save the file content temporarily
+        const tempFilePath = path.join(uploadDir, fileKey);
+        const writeStream = fs.createWriteStream(tempFilePath);
+        fileStream.pipe(writeStream);
+
+        // Run Python script to update the XLSX file
+        await addPropertyUsingPython(tempFilePath, originalname);
+        
+        // saving the updated file back to cloud
+        await uploadFileToS3(fileKey, tempFilePath);
+
+        // Save to database if not existing
+        await dataModel.create(obj);
+
+          // Read the file data
+          let getFileData;
+          if (path.extname(originalname) === '.xlsx') {
+            getFileData = await readXLSXFile(tempFilePath);
+          } else if (path.extname(originalname) === '.csv') {
+            getFileData = await readCSVFile(tempFilePath);
+          }
+          // console.log(getFileData)
+
+          // Fetch the updated file data from the database
+          const fileData = await dataModel.findOne({ 'file.name': originalname });
+          const finalFileData = {
+            _id: fileData?._id,
+            name: fileData?.file?.name,
+            path: fileData?.file?.path,
+            uploaddate: fileData?.uploaddate,
+            formatdate: fileData?.formatdate,
+            filekey: fileData?.file?.filekey,
+            bank_name: fileData?.bank,
+            data: getFileData
           };
-          res.send({ status: 200, filedata: updatedData });
-        } else {
-          res.send({status : 400});
-        }
+          res.send({ status: 200, filedata: finalFileData });
+
+          // Clean up temporary file after processing
+          fs.unlinkSync(tempFilePath);
+
+        writeStream.on('error', (err) => {
+          console.error('Error writing file to local storage:', err);
+          res.status(500).send({ message: 'Error writing file to local storage' });
+        });
       } else {
-        res.send({status : 400});
+        res.send({ status: 400, message: 'File already exists in database' });
       }
     } catch (error) {
       console.error("Error saving file data:", error);
@@ -145,30 +287,139 @@ route.post("/", upload.any(), async (req, res) => {
   }
 });
 
-route.get('/', async(req, res) => {
-  let allFileData = await dataModel.find();
-  const rawFileData = allFileData?.map((value) => {
-      const getFileData = readXLSXFile(value.file.path);
-      return {
-          _id : value._id, 
-          name : value.file.name,
-          path : value.file.path,
-          uploaddate : value.uploaddate,
-          formatdate : value.formatdate,
-          newname : value.file.newname,
-          bank_name : value.bank,
-          data : getFileData
+route.get('/', async (req, res) => {
+  try {
+    // Fetch all file records from the database
+    const allFileData = await dataModel.find();
+    if (!allFileData || allFileData.length === 0) {
+      return res.status(404).send({ message: "No files found" });
+    }
+
+    // Array to store promises for file content fetching
+    const filePromises = allFileData.map(async (fileData) => {
+      const fileKey = fileData?.file?.filekey; // Assuming 'filekey' is the S3 file key
+      const fileUrl = fileData?.file?.path;
+
+      try {
+        // Download the file from S3
+        const fileStream = await downloadFileFromS3(fileKey);
+        
+        // Save the file content temporarily
+        const tempFilePath = path.join(uploadDir, fileKey);
+        const writeStream = fs.createWriteStream(tempFilePath);
+        fileStream.pipe(writeStream);
+
+        // Return a promise that resolves when the file is written
+        return new Promise((resolve, reject) => {
+          writeStream.on('finish', async () => {
+            let fileContent;
+            if (path.extname(fileData.file.name) === '.xlsx') {
+              fileContent = readXLSXFile(tempFilePath);
+            } else if (path.extname(fileData.file.name) === '.csv') {
+              fileContent = await readCSVFile(tempFilePath);
+            }
+
+            // Clean up temporary file after processing
+            fs.unlinkSync(tempFilePath);
+
+            // Combine metadata and file content
+            resolve({
+              _id: fileData._id,
+              name: fileData.file.name,
+              path: fileData.file.path,
+              uploaddate: fileData.uploaddate,
+              formatdate: fileData.formatdate,
+              filekey: fileData.file.filekey,
+              bank_name: fileData.bank,
+              data: fileContent
+            });
+          });
+
+          writeStream.on('error', (err) => {
+            console.error('Error writing file to local storage:', err);
+            reject(err);
+          });
+        });
+      } catch (err) {
+        console.error(`Error processing file ${fileKey}:`, err);
+        return {
+          _id: fileData._id,
+          name: fileData.file.name,
+          error: 'Error retrieving file'
+        };
       }
-  })
-  res.send({ fileData : rawFileData })
+    });
+
+    // Wait for all promises to resolve
+    const filesData = await Promise.all(filePromises);
+
+    // Send the combined data
+    res.send({
+      status: 200,
+      filedata: filesData
+    });
+  } catch (error) {
+    console.error("Error retrieving all file data:", error);
+    res.status(500).send("Internal server error.");
+  }
 });
 
-route.put('/', async(req, res) => {});
 
-// DELETE route to remove file and its database record
-route.delete('/', async (req, res) => {
-  const {IDs} = req.body;
+route.put("/", async (req, res) => {
+  const { fileName, agreementNumber, actionStatus } = req.body?.data?.action;
   
+  console.log(fileName)
+  try {
+    // Find the file data by ID
+    const fileData = await dataModel.findOne({'file.name' : fileName})
+    if (!fileData) {
+      return res.status(404).send({ message: "File not found" });
+    }
+
+    // Get file details
+    const fileKey = fileData?.file?.filekey; // S3 key for the file
+    const filePath = path.join(uploadDir, fileKey); // Local path to save the file
+
+    // Download the file from S3
+    const fileStream = await downloadFileFromS3(fileKey);
+    const writeStream = fs.createWriteStream(filePath);
+    
+    fileStream.pipe(writeStream);
+
+    writeStream.on('finish', async () => {
+      try {
+        // Run Python script to update the action in the file
+        await runPythonScript(filePath, agreementNumber, actionStatus);
+
+         // saving the updated file back to cloud
+        await uploadFileToS3(fileKey, filePath);
+
+        // Send success response
+        res.send({ status: 200, message: "Action updated successfully" });
+
+        // Clean up temporary file after processing
+        fs.unlinkSync(filePath);
+      } catch (error) {
+        console.error("Error running Python script:", error);
+        res.status(500).send("Internal server error.");
+      }
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('Error writing file to local storage:', err);
+      res.status(500).send({ message: 'Error writing file to local storage' });
+    });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
+
+// DELETE route to remove multiple files and their database records
+route.delete('/', async (req, res) => {
+  const { IDs } = req.body;
+
   try {
     // Initialize arrays to track success and errors
     const errors = [];
@@ -185,19 +436,16 @@ route.delete('/', async (req, res) => {
           continue; // Skip to the next iteration if the file is not found
         }
 
-        const filePath = findFile.file.path;
+        const fileKey = findFile?.file.filekey; // Assuming 'newname' is the S3 file key
 
-        // Resolve the absolute path for security
-        const absoluteFilePath = path.resolve(filePath);
-
-        // Delete the file using fs.promises.unlink
-        await fs.promises.unlink(absoluteFilePath); // Promises version of unlink
-        // console.log(`Deleted file at path: ${absoluteFilePath}`);
+        // Delete the file from S3 bucket
+        await deleteFileFromS3(fileKey);
 
         // Delete the file record from the database
         await dataModel.deleteOne({ _id: fileId });
-        // console.log(`Deleted record from database for ID: ${fileId}`);
-        deletedIds.push(fileId); // Track successful deletions
+
+        // Track successful deletions
+        deletedIds.push(fileId);
 
       } catch (err) {
         console.error(`Error processing file ID: ${fileId}`, err);
@@ -206,11 +454,11 @@ route.delete('/', async (req, res) => {
     }
 
     // Respond with status 200 even if there are some errors, detailing what succeeded and failed
-    res.status(200).send({ 
-      status: 200, 
+    res.status(200).send({
+      status: 200,
       message: errors.length > 0 ? 'Partial success' : 'All files deleted successfully',
-      deletedIds, 
-      errors 
+      deletedIds,
+      errors
     });
 
   } catch (error) {
@@ -218,5 +466,6 @@ route.delete('/', async (req, res) => {
     res.status(500).send({ status: 500, message: 'Internal server error' });
   }
 });
+
 
 module.exports = route;
