@@ -29,10 +29,10 @@ const AppNavigator = () => {
         inactiveTintColor: 'gray',
       }}
     >
-      <Tab.Screen name="Home" component={IndexScreen} />
+      <Tab.Screen name="Home" component={IndexScreen} options={{ headerShown: false }} />
       {/* Uncomment the following lines if you add more screens */}
-      <Tab.Screen name="Search" component={IndexScreen} />
-      <Tab.Screen name="LogOut" component={LogoutScreen} />
+      <Tab.Screen name="Search" component={IndexScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="LogOut" component={LogoutScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };

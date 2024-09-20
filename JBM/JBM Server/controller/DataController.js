@@ -252,7 +252,7 @@ route.post("/", upload.any(), async (req, res) => {
           // Read the file data
           let getFileData;
           if (path.extname(originalname) === '.xlsx') {
-            getFileData = await readXLSXFile(tempFilePath);
+            getFileData = readXLSXFile(tempFilePath);
           } else if (path.extname(originalname) === '.csv') {
             getFileData = await readCSVFile(tempFilePath);
           }
@@ -302,7 +302,7 @@ route.get('/', async (req, res) => {
 
     // Array to store promises for file content fetching
     const filePromises = allFileData.map(async (fileData) => {
-      const fileKey = fileData?.file?.filekey; // Assuming 'filekey' is the S3 file key
+      const fileKey = fileData?.file?.filekey; 
       const fileUrl = fileData?.file?.path;
 
       try {
