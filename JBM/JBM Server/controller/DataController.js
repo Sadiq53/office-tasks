@@ -11,7 +11,6 @@ const { exec } = require('child_process');
 const multerS3 = require('multer-s3');
 const AWS = require('@aws-sdk/client-s3');
 const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
-// const {readXLSXFile} = require('../assets/scripts/FileReader')
 
 // ---------------------------------File Reading-----------------------------------------
 
