@@ -42,12 +42,18 @@ function readCSVFile(filePath) {
 
 //-------------------------File Saving------------------------------------
 
+
+const AWS_ACCESS_KEY_ID = 'AKIASFIXCTQJOP3YAAUY';
+const AWS_REGION = 'eu-north-1';
+const AWS_SECRET_ACCESS_KEY = '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';
+const S3_BUCKET = 'jmb-enterprise-bucket'
+
 // AWS SDK Configuration
 const s3 = new S3Client({
-  region: 'eu-north-1',
+  region: process.env.AWS_REGION,
   credentials: {
-    accessKeyId: 'AKIASFIXCTQJOP3YAAUY',
-    secretAccessKey: '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',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -62,7 +68,7 @@ if (!fs.existsSync(uploadDir)) {
 // Multer configuration for file storage
 const storage = multerS3({
   s3: s3,
-  bucket: 'jmb-enterprise-bucket',
+  bucket: process.env.S3_BUCKET,
   acl: 'public-read',
   key: (req, file, cb) => {
     // Generate a unique name for the file
@@ -137,7 +143,7 @@ function runPythonScript(filePath, agreementNumber, actionStatus) {
 // Function to download file from S3
 async function downloadFileFromS3(fileKey) {
   const params = {
-    Bucket: 'jmb-enterprise-bucket',
+    Bucket: process.env.S3_BUCKET,
     Key: fileKey
   };
   
@@ -154,7 +160,7 @@ async function downloadFileFromS3(fileKey) {
 // Function to delete file from S3
 async function deleteFileFromS3(fileKey) {
   const params = {
-    Bucket: 'jmb-enterprise-bucket',
+    Bucket: process.env.S3_BUCKET,
     Key: fileKey
   };
   
@@ -174,7 +180,7 @@ async function uploadFileToS3( fileKey, filePath) {
 
     // Define the parameters for the upload
     const uploadParams = {
-      Bucket: 'jmb-enterprise-bucket',
+      Bucket: process.env.S3_BUCKET,
       Key: fileKey,
       Body: fileStream,
     };
