@@ -22,7 +22,7 @@ route.post('/', async(req, res) => {
 })
 
 route.get('/:id', async(req, res) => {
-    
+        console.log(req.params.id)
         let ID = jwt.decode(req.params.id, key)
         let userData = await memberData.find({_id : ID?.id})
         if(userData?.length != 0){
