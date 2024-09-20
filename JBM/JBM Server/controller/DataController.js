@@ -50,10 +50,10 @@ const S3_BUCKET = 'jmb-enterprise-bucket'
 
 // AWS SDK Configuration
 const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+  region: 'eu-north-1',
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: 'AKIASFIXCTQJOP3YAAUY',
+    secretAccessKey: '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',
   },
 });
 
@@ -68,7 +68,7 @@ if (!fs.existsSync(uploadDir)) {
 // Multer configuration for file storage
 const storage = multerS3({
   s3: s3,
-  bucket: process.env.S3_BUCKET,
+  bucket: 'jmb-enterprise-bucket',
   acl: 'public-read',
   key: (req, file, cb) => {
     // Generate a unique name for the file
@@ -143,7 +143,7 @@ function runPythonScript(filePath, agreementNumber, actionStatus) {
 // Function to download file from S3
 async function downloadFileFromS3(fileKey) {
   const params = {
-    Bucket: process.env.S3_BUCKET,
+    Bucket: 'jmb-enterprise-bucket',
     Key: fileKey
   };
   
@@ -160,7 +160,7 @@ async function downloadFileFromS3(fileKey) {
 // Function to delete file from S3
 async function deleteFileFromS3(fileKey) {
   const params = {
-    Bucket: process.env.S3_BUCKET,
+    Bucket: 'jmb-enterprise-bucket',
     Key: fileKey
   };
   
@@ -180,7 +180,7 @@ async function uploadFileToS3( fileKey, filePath) {
 
     // Define the parameters for the upload
     const uploadParams = {
-      Bucket: process.env.S3_BUCKET,
+      Bucket: 'jmb-enterprise-bucket',
       Key: fileKey,
       Body: fileStream,
     };
