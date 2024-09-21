@@ -23,9 +23,9 @@ route.post('/', async(req, res) => {
 
 route.get('/:id', async(req, res) => {
     const stableId = req.params.id?.replace(":", "");
-    console.log(stableId)
+    // console.log(stableId)
         let ID = jwt.decode(stableId, key)
-        console.log(ID)
+        // console.log(ID)
         let userData = await memberData.find({_id : ID})
         if(userData?.length != 0){
             res.status(200).set('Content-Type', 'text/plain').send({status : 200, result : userData[0]})

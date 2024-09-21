@@ -28,24 +28,11 @@ const IndexScreen = () => {
       setData()
     }, []);
 
-    const handleGetUserData = async() =>{
-      const ID = await AsyncStorage.getItem('UserToken')
-      console.log(ID)
-      const response = await fetch(`https://jmb-server.onrender.com/admin/login/:${ID}`, {
-        method : "GET"
-      })
-      console.log(response)
-      if (!response.ok) {
-          throw new Error('Failed to fetch data');
-      }
-      const data = await response.json();
-      console.log(data)
-      return data?.result
-  }
 
     useEffect(()=>{
       async function userData() {
-        const data = await handleGetUserData()
+        const ID = await AsyncStorage.getItem('UserToken')
+        const data = await handleGetUserData(ID)
         setUserData(data)
       }
       userData()
@@ -54,16 +41,24 @@ const IndexScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome,</Text>
-        <Text style={styles.nameText}>{userData ? userData?.member_name : ''}</Text>
-        <View style={styles.locationContainer}>
-          <Ionicons name="location" size={20} color="black" />
-          <Text style={styles.locationText}>Your Location</Text>
+        <View style={styles.flex}>
+          <View>
+            <Text style={styles.welcomeText}>Welcome,</Text>
+            <Text style={styles.nameText}>{userData ? userData?.member_name : ''}</Text>
+          </View>
+          <View style={styles.locationContainer}>
+            <Ionicons name="location" size={20} color="black" />
+            <Text style={styles.locationText}>Your Location</Text>
+          </View>
         </View>
+        <View style={styles.grid}>
+        <StatusCard title="In Yard" count={inYardVehicles?.length} color="#00d9a4" />
+        <StatusCard title="Release" count={releaseVehicles?.length} color="#6ecfff" />
+        <StatusCard title="Hold" count={holdVehicles?.length} color="#ffbf2f" />
       </View>
-
+      
+      </View>
       <Text style={styles.subText}>Search vehicle by chassis or vehicle number</Text>
-
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={24} color="gray" />
         <TextInput
@@ -74,12 +69,8 @@ const IndexScreen = () => {
         />
       </View>
 
-      <View style={styles.grid}>
-        <StatusCard title="Pending" count={100} color="#ff5c5c" />
-        <StatusCard title="In Yard" count={inYardVehicles?.length} color="#00d9a4" />
-        <StatusCard title="Release" count={releaseVehicles?.length} color="#6ecfff" />
-        <StatusCard title="Hold" count={holdVehicles?.length} color="#ffbf2f" />
-      </View>
+
+     
     </ScrollView>
   );
 };
@@ -102,9 +93,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
+    paddingTop : 10,
     backgroundColor: '#e32636',
     padding: 20,
     paddingTop: 50,
+    borderBottomEndRadius : 40,
+    borderBottomStartRadius : 40
   },
   welcomeText: {
     color: 'white',
@@ -126,9 +120,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   subText: {
-    color: 'black',
-    fontSize: 16,
-    margin: 10,
+    color: '#000',
+    fontSize: 14,
+    marginTop: 30,
+    textAlign : "left",
+    marginBottom : 0,
+    marginLeft :20
   },
   searchContainer: {
     flexDirection: 'row',
@@ -136,23 +133,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
-    margin: 10,
+    margin: 20,
+    marginTop : 10,
   },
   searchInput: {
     marginLeft: 10,
     flex: 1,
     fontSize: 16,
+
   },
   grid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    // flexWrap: 'wrap',
     justifyContent: 'space-around',
+    // gap :10
+    padding : 20,
+    paddingLeft : 0,
+    paddingRight : 0,
+    paddingBottom : 10,
   },
   card: {
-    width: '40%',
+    width: '30%',
     borderWidth: 2,
     borderRadius: 10,
-    padding: 20,
+    padding: 5,
     margin: 10,
     backgroundColor: '#fff',
     alignItems: 'center',
@@ -165,4 +169,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
   },
+  flex: {
+    flexDirection : "row",
+    gap : 20,
+    justifyContent : "space-between"
+  }
 });
