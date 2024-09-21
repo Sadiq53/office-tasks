@@ -28,8 +28,10 @@ const IndexScreen = () => {
       setData()
     }, []);
 
-    const handleGetUserData = async(id) =>{
-      const response = await fetch(`https://jmb-server.onrender.com/admin/login/:${id}`, {
+    const handleGetUserData = async() =>{
+      const ID = await AsyncStorage.getItem('UserToken')
+      console.log(ID)
+      const response = await fetch(`https://jmb-server.onrender.com/admin/login/:${ID}`, {
         method : "GET"
       })
       console.log(response)
@@ -43,7 +45,7 @@ const IndexScreen = () => {
 
     useEffect(()=>{
       async function userData() {
-        const data = await handleGetUserData(ID)
+        const data = await handleGetUserData()
         setUserData(data)
       }
       userData()
