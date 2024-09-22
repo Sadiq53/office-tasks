@@ -371,9 +371,9 @@ route.get('/', async (req, res) => {
 
 
 route.put("/", async (req, res) => {
-  const { fileName, agreementNumber, actionStatus } = req.body?.data?.action;
+  if(req.body?.data?.action) {
+    const { fileName, agreementNumber, actionStatus } = req.body?.data?.action;
 
-  if(actionStatus){
     const createDate = new Date();
     // creating the member created Date in Proper Formate
       const currentDate = createDate;
@@ -386,7 +386,7 @@ route.put("/", async (req, res) => {
       year: 'numeric'
       };
       const actionTime = currentDate.toLocaleString('en-US', options);
-  }
+  
   
   // console.log(fileName)
   try {
@@ -432,6 +432,7 @@ route.put("/", async (req, res) => {
   } catch (error) {
     console.error("Error processing request:", error);
     res.status(500).send("Internal server error.");
+  }
   }
 });
 
