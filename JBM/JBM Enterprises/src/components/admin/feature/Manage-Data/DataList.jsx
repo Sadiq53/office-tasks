@@ -11,8 +11,9 @@ const DataList = () => {
   const [paginationLength, setPaginationLength] = useState([1]);
   const [currentIndex, setCurrentIndex] = useState(1);
   const [changeFileOnName, setChangeFileOnName] = useState("");
-  const [changeFileOnBank, setChangeFileOnBank] = useState("");
   const [changeFileOnDate, setChangeFileOnDate] = useState("");
+  const [changeFileOnBank, setChangeFileOnBank] = useState("");
+  const [message, setMessage] = useState("");
   const RawFileData = useSelector(state => state.AdminDataSlice?.file);
   const bankData = useSelector(state => state.AdminDataSlice?.bank);
   const isProcessing = useSelector(state => state.AdminDataSlice?.isProcessing);
@@ -101,7 +102,7 @@ const DataList = () => {
     const data = filteredData.map(({ data }) => data).flat();
     setBreakDownFIleData(data);
     } else {
-      
+      setMessage("Please Try Again Later.....")
     }
   }, [RawFileData, changeFileOnName, changeFileOnBank, changeFileOnDate]);
   

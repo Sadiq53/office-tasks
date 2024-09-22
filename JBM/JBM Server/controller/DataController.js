@@ -373,17 +373,20 @@ route.get('/', async (req, res) => {
 route.put("/", async (req, res) => {
   const { fileName, agreementNumber, actionStatus } = req.body?.data?.action;
 
-   // creating the member created Date in Proper Formate
-    const currentDate = new Date();
-    const options = {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-    };
-    const actionTime = currentDate.toLocaleString('en-US', options);
+  if(actionStatus){
+    const createDate = new Date();
+    // creating the member created Date in Proper Formate
+      const currentDate = createDate;
+      const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+      };
+      const actionTime = currentDate.toLocaleString('en-US', options);
+  }
   
   // console.log(fileName)
   try {

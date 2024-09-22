@@ -170,14 +170,20 @@ const AdminDataSlice = createSlice({
             state.isDataProcessing = false;
         });
         builder.addCase(handleGetAllFileData.fulfilled, (state, action) =>{
-            state.file = action.payload;
-            state.isDataProcessing = false;
+            if(action?.payload) {
+                state.file = action.payload;
+                state.isProcessing = false;
+                state.isError = false;
+            } else {
+                state.isError = true;
+                state.isProcessing = false;
+            }
         });
         builder.addCase(handleGetAllData.pending, (state, action) =>{
             state.isDataProcessing = true
         });
         builder.addCase(handleGetAllFileData.pending, (state, action) =>{
-            state.isDataProcessing = true
+            state.isProcessing = true
         });
         builder.addCase(handleAddBankData.fulfilled, (state, action)=>{
             if(action?.payload) {
