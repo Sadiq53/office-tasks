@@ -106,7 +106,11 @@ const handleAddAction = createAsyncThunk('handleAddAction', async(formData)=>{
     const response = await axios.put(`${API_URL}/data`, { data : { action : formData } })
     console.log(response.data)
     if(response.data.status === 200) {
-        return formData
+        const updatedData = {
+            formData : formData,
+            actionTime : response.data?.actionTime
+        }
+        return updatedData
     } else { 
         return
     }
@@ -254,7 +258,8 @@ const AdminDataSlice = createSlice({
         });
         builder.addCase(handleAddAction.fulfilled, (state, action) => {
             if (action?.payload) {
-                const { actionStatus, agreementNumber, fileName } = action.payload;
+                const { actionStatus, agreementNumber, fileName } = action.payload.formData;
+                const { actionTime } = action?.payload;
         
                 // Update the state by mapping over the file array
                 state.file = state.file.map(file => {
@@ -262,11 +267,24 @@ const AdminDataSlice = createSlice({
                         // Update the data array within the matched file
                         return {
                             ...file,
-                            data: file.data.map(value => 
-                                value.AGREEMENTNO === agreementNumber
-                                    ? { ...value, ACTION: actionStatus } // Update ACTION property
-                                    : value // Return unchanged item
-                            )
+                            data: file.data.map(value => {
+                                if (value.AGREEMENTNO === agreementNumber) {
+                                    // Update the ACTION property and the corresponding time field
+                                    let updatedValue = { ...value, ACTION: actionStatus };
+        
+                                    // Check the actionStatus and add time to the appropriate field
+                                    if (actionStatus === 'Hold') {
+                                        updatedValue = { ...updatedValue, HOLD: actionTime };
+                                    } else if (actionStatus === 'Release') {
+                                        updatedValue = { ...updatedValue, RELEASE: actionTime };
+                                    } else if (actionStatus === 'In Yard') {
+                                        updatedValue = { ...updatedValue, IN_YARD: actionTime };
+                                    }
+        
+                                    return updatedValue;
+                                }
+                                return value; // Return unchanged item if no match
+                            })
                         };
                     }
                     return file; // Return unchanged file if it doesn't match
@@ -279,6 +297,7 @@ const AdminDataSlice = createSlice({
                 state.isError = true;
             }
         });
+        
         builder.addCase(handleAddAction.pending, (state, action) => {
                 state.isProcessing = true;
         });

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Header from '../../shared/Header/Header';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleAddAction, resetState } from '../../../../redux/AdminDataSlice';
+import socket from '../../../../util/Socket'
 
 const DataList = () => {
   const [onlyFileData, setOnlyFileData] = useState([]);
@@ -176,6 +177,15 @@ const DataList = () => {
   }, [isFullfilled])
   
   //--------------------Action Loader-------------------------------
+  
+  
+  //--------------------Socket-------------------------------
+  
+  // useEffect(()=>{
+  //   socket.emit('addAction', ({  }))
+  // }, [socket, dispatch])
+  
+  //--------------------Socket-------------------------------
 
   return (
     <>
@@ -298,6 +308,9 @@ const DataList = () => {
                               <th>Assets Des</th>
                               <th>Arm Name</th>
                               <th>Arm Phone</th>
+                              <th>Hold</th>
+                              <th>Release</th>
+                              <th>In Yard</th>
                               <th>Actions</th>
                             </tr>
                           </thead>
@@ -320,6 +333,9 @@ const DataList = () => {
                                   <td className="sorting_1">{value.ASSETSDESC}</td>
                                   <td className="sorting_1">{ARMNAME}</td>
                                   <td className="sorting_1">{ARMPHONE}</td>
+                                  <td className="sorting_1">{value.HOLD}</td>
+                                  <td className="sorting_1">{value.RELEASE}</td>
+                                  <td className="sorting_1">{value.IN_YARD}</td>
                                   <td className="sorting_1">
                                     <div id={value.AGREEMENTNO} className='actionSet'>
                                       <div className='spinner'></div>

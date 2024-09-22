@@ -6,7 +6,7 @@ const key = 'User Authentication'
 
 route.post('/', async(req, res) => {
     const { username, password } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     const findAccount = await memberData.findOne({member_email : username});
     // console.log(findAccount)
     if(findAccount) {

@@ -1,43 +1,93 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, FlatList } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { handleGetData, handleGetUserData } from '../services/UserDataService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const IndexScreen = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [holdVehicles, setHoldVehicles] = useState([]);
+  const [releaseVehicles, setReleaseVehicles] = useState([]);
+  const [inYardVehicles, setInYardVehicles] = useState([]);
+  const [rawFileData, setRawFileData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]); // For filtered search results
+  const [userData, setUserData] = useState([]);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [holdVehicles, setHoldVehicles] = useState([]);
-    const [releaseVehicles, setReleaseVehicles] = useState([]);
-    const [inYardVehicles, setInYardVehicles] = useState([]);
-    const [userData, setUserData] = useState([]);
-    const ID = AsyncStorage.getItem('UserToken')
+  const navigation = useNavigation();
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    async function setData() {
+      const data = await handleGetData();
+      const files = data.map(({ data }) => data).flat();
+      setRawFileData(files);
+      setFilteredData(files); // Initialize filtered data with all vehicles
+
+      const holdFileData = files?.filter(value => value.ACTION === 'Hold');
+      const releaseFileData = files?.filter(value => value.ACTION === 'Release');
+      const yardFileData = files?.filter(value => value.ACTION === 'In Yard');
+      setHoldVehicles(holdFileData);
+      setReleaseVehicles(releaseFileData);
+      setInYardVehicles(yardFileData);
+    }
+    setData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const ID = await AsyncStorage.getItem('UserToken');
+      const data = await handleGetUserData(ID);
+      setUserData(data);
+    }
+    fetchUserData();
+  }, []);
+
+  // Filter the data based on search query
+  useEffect(() => {
+    if (searchQuery === '') {
+      setFilteredData(rawFileData);
+    } else {
+      const filtered = rawFileData.filter(item => {
+        const regdNum = item?.REGDNUM?.toString() || '';  // Ensure REGDNUM is a string
+        return regdNum.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+      setFilteredData(filtered);
+    }
+  }, [searchQuery, rawFileData]);
   
-    // Fetch data when the component mounts
-    useEffect(() => {
-      async function setData () {
-        const data = await handleGetData()
-        const files = data.map(({ data }) => data).flat();
-        const holdFileData = files?.filter(value => value.ACTION === 'Hold')
-        const releaseFileData = files?.filter(value => value.ACTION === 'Release')
-        const yardFileData = files?.filter(value => value.ACTION === 'In Yard')
-        setHoldVehicles(holdFileData)
-        setReleaseVehicles(releaseFileData)
-        setInYardVehicles(yardFileData)
-      }
-      setData()
-    }, []);
 
+  const handleItemPress = (fileData) => {
+    navigation.navigate('VehicleDetails', { fileData });
+  };
 
-    useEffect(()=>{
-      async function userData() {
-        const ID = await AsyncStorage.getItem('UserToken')
-        const data = await handleGetUserData(ID)
-        setUserData(data)
+  const handleSearchChange = (text) => {
+    if (searchQuery.length > text.length) {
+      // If backspace is pressed, clear the input
+      setSearchQuery('');
+    } else {
+      // If more than 4 digits are entered, clear the previous input and set the 5th digit as the new search query
+      if (text.length > 4) {
+        const updatedText = text.slice(-1); // Get the last (5th) digit only
+        setSearchQuery(updatedText); // Set the 5th digit as the new input
+      } else {
+        setSearchQuery(text); // Otherwise, update the input normally
       }
-      userData()
-    }, [])
-    
+    }
+  };
+  
+
+  const handleLogout = () => {
+    navigation.navigate('LogOut');
+  };
+
+  const renderVehicleItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handleItemPress(item)} style={styles.itemContainer}>
+      <Text style={styles.itemText}>Vehicle no.</Text>
+      <Text style={styles.vehicleNo}>{item.REGDNUM}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -47,17 +97,24 @@ const IndexScreen = () => {
             <Text style={styles.nameText}>{userData ? userData?.member_name : ''}</Text>
           </View>
           <View style={styles.locationContainer}>
-            <Ionicons name="location" size={20} color="black" />
-            <Text style={styles.locationText}>Your Location</Text>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={24} color="white" />
+              <Text style={styles.logoutText}>Log Out</Text>
+            </TouchableOpacity>
+            <View style={styles.locBox}>
+              <Ionicons name="location" size={20} color="black" />
+              <Text style={styles.locationText}>Your Location</Text>
+            </View>
           </View>
         </View>
+
         <View style={styles.grid}>
-        <StatusCard title="In Yard" count={inYardVehicles?.length} color="#00d9a4" />
-        <StatusCard title="Release" count={releaseVehicles?.length} color="#6ecfff" />
-        <StatusCard title="Hold" count={holdVehicles?.length} color="#ffbf2f" />
+          <StatusCard title="In Yard" count={inYardVehicles?.length} color="#00d9a4" />
+          <StatusCard title="Release" count={releaseVehicles?.length} color="#6ecfff" />
+          <StatusCard title="Hold" count={holdVehicles?.length} color="#ffbf2f" />
+        </View>
       </View>
-      
-      </View>
+
       <Text style={styles.subText}>Search vehicle by chassis or vehicle number</Text>
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={24} color="gray" />
@@ -65,12 +122,20 @@ const IndexScreen = () => {
           style={styles.searchInput}
           placeholder="Search"
           value={searchQuery}
-          onChangeText={text => setSearchQuery(text)}
+          onChangeText={text => handleSearchChange(text)}
+          keyboardType="numeric"
+          maxLength={5}
         />
+
       </View>
 
-
-     
+      <FlatList
+        data={filteredData}
+        renderItem={renderVehicleItem}
+        keyExtractor={(item, index) => item?.REGDNUM || index.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.flatListContent}
+      />
     </ScrollView>
   );
 };
@@ -93,12 +158,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    paddingTop : 10,
+    paddingTop: 10,
     backgroundColor: '#e32636',
     padding: 20,
     paddingTop: 50,
-    borderBottomEndRadius : 40,
-    borderBottomStartRadius : 40
+    borderBottomEndRadius: 40,
+    borderBottomStartRadius: 40,
+    justifyContent: 'center',
   },
   welcomeText: {
     color: 'white',
@@ -110,9 +176,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   locationContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     marginTop: 10,
+    gap: 10,
+  },
+  locBox: {
+    flexDirection: 'row',
   },
   locationText: {
     color: 'yellow',
@@ -123,9 +193,9 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
     marginTop: 30,
-    textAlign : "left",
-    marginBottom : 0,
-    marginLeft :20
+    textAlign: 'left',
+    marginBottom: 0,
+    marginLeft: 20,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -134,23 +204,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     margin: 20,
-    marginTop : 10,
+    marginTop: 10,
   },
   searchInput: {
     marginLeft: 10,
     flex: 1,
     fontSize: 16,
-
   },
   grid: {
     flexDirection: 'row',
-    // flexWrap: 'wrap',
     justifyContent: 'space-around',
-    // gap :10
-    padding : 20,
-    paddingLeft : 0,
-    paddingRight : 0,
-    paddingBottom : 10,
+    padding: 20,
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingBottom: 10,
   },
   card: {
     width: '30%',
@@ -170,8 +237,49 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   flex: {
-    flexDirection : "row",
-    gap : 20,
-    justifyContent : "space-between"
-  }
+    flexDirection: 'row',
+    gap: 20,
+    justifyContent: 'space-between',
+  },
+  flatListContent: {
+    paddingHorizontal: 10,
+  },
+  itemContainer: {
+    flexBasis: '47%', // 47% to accommodate space for margins
+    flexGrow: 1,
+    flexShrink: 1,
+    margin: 8,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  itemText: {
+    color: '#888888',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  vehicleNo: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ff6347',
+    padding: 8,
+    borderRadius: 8,
+  },
+  logoutText: {
+    color: 'white',
+    marginLeft: 8,
+    fontSize: 16,
+  },
 });

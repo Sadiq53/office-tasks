@@ -103,10 +103,10 @@ const upload = multer({
 const scriptPath = path.join(__dirname, '..', 'assets', 'scripts', 'update_xlsx.py');
 
 // Function to run Python script
-function addPropertyUsingPython(filePath, filename) {
+function addPropertyUsingPython(filePath, filename, bank) {
   return new Promise((resolve, reject) => {
     // Use double quotes around paths to handle spaces and special characters
-    const command = `python "${scriptPath}" "${filePath}" "${filename}"`;
+    const command = `python "${scriptPath}" "${filePath}" "${filename}" "${bank}"`;
     
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -124,10 +124,10 @@ function addPropertyUsingPython(filePath, filename) {
 //-------------------To Update the Action in the file using python-----------------
 
 // Function to run Python script
-function runPythonScript(filePath, agreementNumber, actionStatus) {
+function runPythonScript(filePath, agreementNumber, actionStatus, actionTime) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(__dirname, '..', 'assets', 'scripts', 'updateAction.py');
-    const command = `python "${scriptPath}" "${filePath}" "${agreementNumber}" "${actionStatus}"`;
+    const command = `python "${scriptPath}" "${filePath}" "${agreementNumber}" "${actionStatus}" "${actionTime}"`;
     
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -241,7 +241,7 @@ route.post("/", upload.any(), async (req, res) => {
         fileStream.pipe(writeStream);
 
         // Run Python script to update the XLSX file
-        await addPropertyUsingPython(tempFilePath, originalname);
+        await addPropertyUsingPython(tempFilePath, originalname, bank);
         
         // saving the updated file back to cloud
         await uploadFileToS3(fileKey, tempFilePath);
@@ -372,8 +372,20 @@ route.get('/', async (req, res) => {
 
 route.put("/", async (req, res) => {
   const { fileName, agreementNumber, actionStatus } = req.body?.data?.action;
+
+   // creating the member created Date in Proper Formate
+    const currentDate = new Date();
+    const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+    };
+    const actionTime = currentDate.toLocaleString('en-US', options);
   
-  console.log(fileName)
+  // console.log(fileName)
   try {
     // Find the file data by ID
     const fileData = await dataModel.findOne({'file.name' : fileName})
@@ -394,13 +406,13 @@ route.put("/", async (req, res) => {
     writeStream.on('finish', async () => {
       try {
         // Run Python script to update the action in the file
-        await runPythonScript(filePath, agreementNumber, actionStatus);
+        await runPythonScript(filePath, agreementNumber, actionStatus, actionTime);
 
          // saving the updated file back to cloud
         await uploadFileToS3(fileKey, filePath);
 
         // Send success response
-        res.send({ status: 200, message: "Action updated successfully" });
+        res.send({ status: 200, message: "Action updated successfully", actionTime : actionTime });
 
         // Clean up temporary file after processing
         fs.unlinkSync(filePath);
