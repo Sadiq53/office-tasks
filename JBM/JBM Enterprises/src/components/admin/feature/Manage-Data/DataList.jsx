@@ -155,10 +155,23 @@ const DataList = () => {
   //--------------------Action Loader-------------------------------
   
     const addAction = (action, value, fileName) => {
+      const createDate = new Date();
+    // creating the member created Date in Proper Formate
+      const currentDate = createDate;
+      const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+      };
+      const actionTime = currentDate.toLocaleString('en-US', options);
       const obj = {
         actionStatus : action,
         agreementNumber : value,
         fileName : fileName,
+        actionTime : actionTime
       }
       dispatch(handleAddAction(obj));
     }

@@ -106,11 +106,7 @@ const handleAddAction = createAsyncThunk('handleAddAction', async(formData)=>{
     const response = await axios.put(`${API_URL}/data`, { data : { action : formData } })
     console.log(response.data)
     if(response.data.status === 200) {
-        const updatedData = {
-            formData : formData,
-            actionTime : response.data?.actionTime
-        }
-        return updatedData
+        return formData
     } else { 
         return
     }
@@ -264,8 +260,7 @@ const AdminDataSlice = createSlice({
         });
         builder.addCase(handleAddAction.fulfilled, (state, action) => {
             if (action?.payload) {
-                const { actionStatus, agreementNumber, fileName } = action.payload.formData;
-                const { actionTime } = action?.payload;
+                const { actionStatus, agreementNumber, fileName, actionTime } = action.payload;
         
                 // Update the state by mapping over the file array
                 state.file = state.file.map(file => {
